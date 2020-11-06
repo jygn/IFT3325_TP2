@@ -1,5 +1,4 @@
-public class Trame {
-
+public class Frame {
     private byte flag;
     private byte type;
     private byte num;
@@ -9,7 +8,4 @@ public class Trame {
 //    class trame() {
 //
 //    }
-
-
-
 }
