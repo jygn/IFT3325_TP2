@@ -5,7 +5,7 @@ public class Frame {
     private byte[] data;
     private short CRC;
 
-//    class trame() {
+//    class trame() {K
 //
 //    }
 }
