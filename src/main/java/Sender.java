@@ -1,7 +1,7 @@
 import java.net.*;
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+
 
 public class Sender extends Thread{
 
