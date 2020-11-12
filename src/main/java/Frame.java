@@ -5,7 +5,12 @@ public class Frame {
     private byte[] data;
     private short CRC;
 
-//    class trame() {K
-//
-//    }
+    public Frame(byte flag, byte type, byte num, byte[] data, byte CRC) {
+        this.flag = flag;
+        this.type = type;
+        this.num = num;
+        this.data = data;
+        this.CRC = CRC;
+
+    }
 }
