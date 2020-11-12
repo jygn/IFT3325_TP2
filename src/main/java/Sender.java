@@ -50,6 +50,6 @@ public class Sender {
     }
 
     public static void main(String args[]){
-        Sender sender = new Sender(args[0], Integer.parseInt(args[1]));
+//        Sender sender = new Sender(args[0], Integer.parseInt(args[1]));
     }
 }

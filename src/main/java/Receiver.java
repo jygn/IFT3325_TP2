@@ -40,6 +40,6 @@ public class Receiver {
     }
 
     public static void main(String args[]){
-        Receiver receiver = new Receiver(Integer.parseInt(args[0]));
+//        Receiver receiver = new Receiver(Integer.parseInt(args[0]));
     }
 }
