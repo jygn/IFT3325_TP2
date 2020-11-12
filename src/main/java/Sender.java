@@ -1,43 +1,52 @@
 import java.net.*;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-public class Sender {
+public class Sender extends Thread{
 
     private Socket socket = null;
     private DataInputStream input = null;
     private DataOutputStream out = null;
+    private String address = "";
+    private int port;
 
     public Sender(String address, int port){
+        this.address = address;
+        this.port = port;
+
+    }
+
+    public void run(){
+        System.out.println("thread Sender is running");
+
         try {
             socket = new Socket(address, port);
             System.out.println("Connected");
 
-            input = new DataInputStream(System.in);
+            InputStream test = new ByteArrayInputStream("hi I am test".getBytes(StandardCharsets.UTF_8));
+            input = new DataInputStream(test);
 
             out = new DataOutputStream(socket.getOutputStream());
-        } catch (UnknownHostException u){
+        } catch (IOException u){
             System.out.println(u);
-        } catch (IOException i){
-            System.out.println(i);
         }
 
         // string to read message from input
         String line = "";
 
-        // keep reading until "Over" is input
-        while (!line.equals("over"))
+        try
         {
-            try
-            {
-                line = input.readUTF();
-                out.writeUTF(line);
-            }
-            catch(IOException i)
-            {
-                System.out.println(i);
-            }
+            line = input.readLine();
+            out.writeUTF(line);
+        }
+        catch(IOException i)
+        {
+            System.out.println("error sender");
         }
 
+
+        //close connection
         try
         {
             out.close();
