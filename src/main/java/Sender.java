@@ -2,6 +2,8 @@ import java.net.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Sender extends Thread{
 
@@ -14,13 +16,16 @@ public class Sender extends Thread{
     public Sender(String address, int port){
         this.address = address;
         this.port = port;
-
     }
 
     public void run(){
         System.out.println("thread Sender is running");
 
         try {
+
+            byte data[] = Files.readAllBytes(Paths.get("src/test/java/test.txt"));
+
+
             socket = new Socket(address, port);
             System.out.println("Connected");
 

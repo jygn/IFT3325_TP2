@@ -5,12 +5,12 @@ public class Frame {
     private byte[] data;
     private short CRC;
 
-    public Frame(byte flag, byte type, byte num, byte[] data, byte CRC) {
-        this.flag = flag;
+    public Frame(byte type, byte num, byte[] data) {
+//        this.flag = flag;
         this.type = type;
         this.num = num;
         this.data = data;
-        this.CRC = CRC;
+//        this.CRC = CRC;
 
     }
 }
