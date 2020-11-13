@@ -1,14 +1,16 @@
 public class Frame {
-    private byte flag;
-    private byte type;
-    private byte num;
-    private byte[] data;
-    private short CRC;
 
-    public Frame(byte type, byte num, byte[] data) {
+    private static final String flag  = "01111110";
+    private char type;
+    private byte num;
+    private String data;
+    private String CRC;
+
+    public Frame(char type, int num, String data) {
+
 //        this.flag = flag;
         this.type = type;
-        this.num = num;
+        this.num = (byte) num;
         this.data = data;
 //        this.CRC = CRC;
 
