@@ -4,13 +4,14 @@ public class FramesManager {
 
     ArrayList<Frame> framesList;
 
-    public FramesManager (String data) {
+    public FramesManager (byte[] data) {
         framesList = new ArrayList<Frame>() {};
 
-        char type;
+        byte type;
         int num;
 
         //TODO 1 arbitraire -> changer et mettre nb de trames selon data max
+        // data.size() / nb max = nb de frames...
         for (int i = 0 ; i < 1; i++) {
             type = 'i'; // test
             num = i%8;  //2^3 = 8 combinaisons

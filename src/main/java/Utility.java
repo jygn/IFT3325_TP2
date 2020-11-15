@@ -27,12 +27,11 @@ public class Utility {
     }
 
 
-    public static String stringToBin(String t) {
+    public static String bytesToBin(byte[] bts) {
 
         String bin = "";
 
-        byte[] data_bts = t.getBytes();
-        for (byte b : data_bts) {
+        for (byte b : bts) {
             bin += Integer.toBinaryString(b);
         }
 

@@ -1,12 +1,12 @@
 public class Frame {
 
     private static final String flag  = "01111110";
-    private char type;
+    private byte type;
     private byte num;
-    private String data;
+    private byte[] data;
     private String CRC;
 
-    public Frame(char type, int num, String data) {
+    public Frame(byte type, int num, byte[] data) {
 
         this.type = type;
         this.num = (byte) num;
@@ -22,7 +22,7 @@ public class Frame {
     public String toBin () {
         String t = Integer.toBinaryString(this.type);
         String n = Integer.toBinaryString(this.num);
-        String d = Utility.stringToBin(this.data);
+        String d = Utility.bytesToBin(this.data);
 
         return t+n+d;
     }

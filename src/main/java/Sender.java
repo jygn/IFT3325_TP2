@@ -1,6 +1,8 @@
 import java.net.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 
@@ -22,7 +24,7 @@ public class Sender extends Thread{
 
         try {
 
-            String data = Utility.readFile("src/test/java/test.txt");
+            byte[] data = Files.readAllBytes(Paths.get("src/test/java/test.txt"));
             FramesManager fm = new FramesManager(data);
 
             ArrayList<Frame> framesList = fm.getFramesList();
