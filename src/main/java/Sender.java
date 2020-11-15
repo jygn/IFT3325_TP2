@@ -1,8 +1,7 @@
 import java.net.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 
 
 public class Sender extends Thread{
@@ -23,7 +22,16 @@ public class Sender extends Thread{
 
         try {
 
-            byte data[] = Files.readAllBytes(Paths.get("src/test/java/test.txt"));
+//            byte data[] = Files.readAllBytes(Paths.get("src/test/java/test.txt"));
+
+            String data = Utility.readFile("src/test/java/test.txt");
+            FramesManager fm = new FramesManager(data);
+            ArrayList<Frame> framesList = fm.getFramesList();
+            // TODO bit stuffing stuffing du header des frames aussi ou non...?
+            String t;
+            for (Frame f : framesList) {
+                t = fm.bitStuffing(f.toBin());
+            }
 
 
             socket = new Socket(address, port);

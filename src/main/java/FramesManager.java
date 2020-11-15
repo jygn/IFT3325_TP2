@@ -1,12 +1,11 @@
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
 
 public class FramesManager {
 
-    Queue<Frame> framesFIFO;
+    ArrayList<Frame> framesList;
 
     public FramesManager (String data) {
-        framesFIFO = new LinkedList<Frame>() {};
+        framesList = new ArrayList<Frame>() {};
 
         char type;
         int num;
@@ -17,12 +16,41 @@ public class FramesManager {
             type = 'i';
             num = i%8;  //2^3 = 8 combinaisons
             // TODO crc = getcrc()...
-            framesFIFO.add(new Frame(type, num, data));
+            framesList.add(new Frame(type, num, data));
         }
     }
 
-    public Queue<Frame> getFramesFIFO() {
-        return framesFIFO;
+    public String bitStuffing (String data) {
+
+        String stuffed = "";
+
+        int c = 0;
+        for (int i = 0; i < data.length(); i++) {
+
+            if (data.charAt(i) == '1') {
+                c++;
+            } else {
+                c = 0;
+            }
+
+            stuffed += data.charAt(i);
+
+            if (c == 5) {
+                stuffed += '0';
+                c = 0;
+            }
+
+        }
+
+        return stuffed;
+
     }
+
+
+    public ArrayList<Frame> getFramesList() {
+        return framesList;
+    }
+
+
 
 }

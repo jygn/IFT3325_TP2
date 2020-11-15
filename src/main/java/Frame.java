@@ -15,4 +15,16 @@ public class Frame {
 //        this.CRC = CRC;
 
     }
+
+    /**
+     * Représentation d'un frame sous format binaire
+     * @return String : frame en format binaire
+     */
+    public String toBin () {
+        String t = Integer.toBinaryString(this.type);
+        String n = Integer.toBinaryString(this.num);
+        String d = Utility.stringToBin(this.data);
+
+        return t+n+d;
+    }
 }
