@@ -22,17 +22,15 @@ public class Sender extends Thread{
 
         try {
 
-//            byte data[] = Files.readAllBytes(Paths.get("src/test/java/test.txt"));
-
             String data = Utility.readFile("src/test/java/test.txt");
             FramesManager fm = new FramesManager(data);
-            ArrayList<Frame> framesList = fm.getFramesList();
-            // TODO bit stuffing stuffing du header des frames aussi ou non...?
-            String t;
-            for (Frame f : framesList) {
-                t = fm.bitStuffing(f.toBin());
-            }
 
+            ArrayList<Frame> framesList = fm.getFramesList();
+            ArrayList<String> binFrames = new ArrayList<>();
+
+            for (Frame f : framesList) {
+                binFrames.add(f.getFlag() + fm.bitStuffing(f.toBin()) + f.getFlag());
+            }
 
             socket = new Socket(address, port);
             System.out.println("Connected");
@@ -41,34 +39,33 @@ public class Sender extends Thread{
             input = new DataInputStream(test);
 
             out = new DataOutputStream(socket.getOutputStream());
+
+
+        // string to read message from input
+//        String line = "";
+//
+//        try
+//        {
+//            line = input.readLine();
+//            out.writeUTF(line);
+//        }
+//        catch(IOException i)
+//        {
+//            System.out.println("error sender");
+//        }
+
+            for (int i = 0; i < binFrames.size(); i++) {
+                out.writeUTF(binFrames.get(i));
+                out.flush();    // envoi du frame i
+            }
+
+            out.close();
+            socket.close();
+
         } catch (IOException u){
             System.out.println(u);
         }
 
-        // string to read message from input
-        String line = "";
-
-        try
-        {
-            line = input.readLine();
-            out.writeUTF(line);
-        }
-        catch(IOException i)
-        {
-            System.out.println("error sender");
-        }
-
-
-        //close connection
-        try
-        {
-            out.close();
-            socket.close();
-        }
-        catch(IOException i)
-        {
-            System.out.println(i);
-        }
     }
 
     public static void main(String args[]){

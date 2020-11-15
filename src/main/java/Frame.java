@@ -8,7 +8,6 @@ public class Frame {
 
     public Frame(char type, int num, String data) {
 
-//        this.flag = flag;
         this.type = type;
         this.num = (byte) num;
         this.data = data;
@@ -26,5 +25,9 @@ public class Frame {
         String d = Utility.stringToBin(this.data);
 
         return t+n+d;
+    }
+
+    public String getFlag() {
+        return flag;
     }
 }

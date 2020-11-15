@@ -26,11 +26,12 @@ public class Receiver extends Thread {
             in = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
 
-            String line = "";
+            String frame = "";
 
             try{
-                line = in.readUTF();
-                System.out.println(line);
+                frame = in.readUTF();
+                System.out.println(frame);
+
             } catch (IOException i){
                 System.out.println("error receiver");
             }
