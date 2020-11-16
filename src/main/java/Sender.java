@@ -56,8 +56,8 @@ public class Sender extends Thread{
 //            System.out.println("error sender");
 //        }
 
-            for (int i = 0; i < binFrames.size(); i++) {
-                out.writeUTF(binFrames.get(i));
+            for (String binFrame : binFrames) {
+                out.writeUTF(binFrame);
                 out.flush();    // envoi du frame i
             }
 

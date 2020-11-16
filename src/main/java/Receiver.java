@@ -28,11 +28,13 @@ public class Receiver extends Thread {
             String frame = "";
 
             try{
-                frame = in.readUTF();
-                System.out.println(frame);
+                while (true) {
+                    frame = in.readUTF();
+                    System.out.println(frame);
+                }
 
-            } catch (IOException i){
-                System.out.println("error receiver");
+            } catch (IOException e){
+                e.printStackTrace();
             }
             System.out.println("Closing connection");
 
