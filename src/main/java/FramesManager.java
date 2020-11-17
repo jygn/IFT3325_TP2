@@ -16,7 +16,7 @@ public class FramesManager {
         int src_pos = 0;
 
         for (int i = 0 ; i < n; i++) {
-            type = 'i'; // test
+            type = 'I'; // test
             num = i%8;  //2^3 = 8 combinaisons
             // TODO crc = getcrc()...
 
