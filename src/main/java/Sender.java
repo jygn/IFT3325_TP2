@@ -1,6 +1,5 @@
 import java.net.*;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -15,13 +14,14 @@ public class Sender extends Thread{
     private int port;
 
 
-    public static final int WINDOW_SIZE = 3;    // (2^3) - 1 = 7
+    public static final int WINDOW_SIZE = 1;    // (2^3) - 1 = 7
 
 
 
     public Sender(String address, int port){
         this.address = address;
         this.port = port;
+
     }
 
     public void run(){
@@ -51,7 +51,8 @@ public class Sender extends Thread{
                 frames.add(Integer.toString(k));
             }
 
-            out = new DataOutputStream(socket.getOutputStream());
+            out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            input = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -65,6 +66,7 @@ public class Sender extends Thread{
 
                 while (frame_sent < WINDOW_SIZE && !done) {
                     out.writeUTF(frames.get(i));
+                    out.flush();
                     System.out.println("frame sent : " + frames.get(i));
                     frame_sent++;
                     i++;
@@ -77,9 +79,11 @@ public class Sender extends Thread{
                 }
 
                 //receive from the server
-                ack = br.readLine();
+                ack = input.readUTF();
                 frame_sent--;
                 System.out.println("ack : " + ack);
+
+                //                ack = br.readLine();
 
                 if(Integer.parseInt(ack) == frames.size()){
                     break;
@@ -90,7 +94,9 @@ public class Sender extends Thread{
             System.out.println("sender close connection");
             out.close();
             socket.close();
-            br.close();
+            input.close();
+//            br.close();
+
 
         } catch (IOException u){
             System.out.println(u);
