@@ -13,6 +13,8 @@ public class Sender extends Thread{
     private DataOutputStream out = null;
     private String address = "";
     private int port;
+    public int RR = 3; // number of frames
+    private int index = 0;
 
     public Sender(String address, int port){
         this.address = address;
@@ -37,29 +39,24 @@ public class Sender extends Thread{
             socket = new Socket(address, port);
             System.out.println("Connected");
 
-            InputStream test = new ByteArrayInputStream("hi I am test".getBytes(StandardCharsets.UTF_8));
-            input = new DataInputStream(test);
+            String frame1 = "1";
+            String frame2 = "2";
+            String frame3 = "3";
+            String frame4 = "4";
+
+            ArrayList<String> frames = new ArrayList<>();
+            frames.add(frame1);
+            frames.add(frame2);
+            frames.add(frame3);
+            frames.add(frame4);
 
             out = new DataOutputStream(socket.getOutputStream());
+            
 
-
-        // string to read message from input
-//        String line = "";
-//
-//        try
-//        {
-//            line = input.readLine();
-//            out.writeUTF(line);
-//        }
-//        catch(IOException i)
-//        {
-//            System.out.println("error sender");
-//        }
-
-            for (String binFrame : binFrames) {
-                out.writeUTF(binFrame);
-                out.flush();    // envoi du frame i
-            }
+//            for (String binFrame : binFrames) {
+//                out.writeUTF(binFrame);
+//                out.flush();    // envoi du frame i
+//            }
 
             out.close();
             socket.close();
