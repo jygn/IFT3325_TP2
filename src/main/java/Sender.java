@@ -13,8 +13,11 @@ public class Sender extends Thread{
     private DataOutputStream out = null;
     private String address = "";
     private int port;
-    public int RR = 3; // number of frames
-    private int index = 0;
+
+
+    public static final int WINDOW_SIZE = 3;    // (2^3) - 1 = 7
+
+
 
     public Sender(String address, int port){
         this.address = address;
@@ -39,27 +42,55 @@ public class Sender extends Thread{
             socket = new Socket(address, port);
             System.out.println("Connected");
 
-            String frame1 = "1";
-            String frame2 = "2";
-            String frame3 = "3";
-            String frame4 = "4";
 
             ArrayList<String> frames = new ArrayList<>();
-            frames.add(frame1);
-            frames.add(frame2);
-            frames.add(frame3);
-            frames.add(frame4);
+
+            //simulate frame
+            int k;
+            for(k = 1; k <= 100; k++){
+                frames.add(Integer.toString(k));
+            }
 
             out = new DataOutputStream(socket.getOutputStream());
-            
 
-//            for (String binFrame : binFrames) {
-//                out.writeUTF(binFrame);
-//                out.flush();    // envoi du frame i
-//            }
+            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+
+            int i = 0;
+            int frame_sent = 0;
+            boolean done = false;
+            String ack;
+
+            while (true) {
+
+                while (frame_sent < WINDOW_SIZE && !done) {
+                    out.writeUTF(frames.get(i));
+                    System.out.println("frame sent : " + frames.get(i));
+                    frame_sent++;
+                    i++;
+                }
+
+                if(i >= frames.size() && !done) {
+                    out.writeUTF("end");
+                    done = true;
+                    System.out.println("Sender done");
+                }
+
+                //receive from the server
+                ack = br.readLine();
+                frame_sent--;
+                System.out.println("ack : " + ack);
+
+                if(Integer.parseInt(ack) == frames.size()){
+                    break;
+                }
+                // TODO si on a recu RR      frame_sent % WINDOW_SIZE
+            }
+
+            System.out.println("sender close connection");
             out.close();
             socket.close();
+            br.close();
 
         } catch (IOException u){
             System.out.println(u);

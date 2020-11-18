@@ -22,24 +22,38 @@ public class Receiver extends Thread {
             socket = server.accept();
             System.out.println("Sender accepted");
 
+            //receive
             in = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
 
-            String frame = "";
+            //send
+            PrintStream ps = new PrintStream((socket.getOutputStream()));
 
             try{
-                while (true) {
-                    frame = in.readUTF();
-                    System.out.println(frame);
+
+                String frame, ack = "";
+
+                //repeat as long as the client does not send a null string
+
+                //read from sender
+                while((!(frame = in.readUTF()).equals("end"))){
+                    System.out.println("frame receive: " + frame);
+                    ack = frame;
+
+                    //send
+                    ps.println(ack);
                 }
+
+                System.out.println("Reciver Closing connection");
+                socket.close();
+                in.close();
+                ps.close();
+                server.close();
 
             } catch (IOException e){
                 e.printStackTrace();
             }
-            System.out.println("Closing connection");
 
-            socket.close();
-            in.close();
         } catch (IOException i){
             System.out.println(i);
         }
