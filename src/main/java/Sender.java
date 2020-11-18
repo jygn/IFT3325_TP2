@@ -14,6 +14,11 @@ public class Sender extends Thread{
     private String address = "";
     private int port;
 
+
+    public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
+
+
+
     public Sender(String address, int port){
         this.address = address;
         this.port = port;
@@ -43,22 +48,19 @@ public class Sender extends Thread{
             out = new DataOutputStream(socket.getOutputStream());
 
 
-        // string to read message from input
-//        String line = "";
-//
-//        try
-//        {
-//            line = input.readLine();
-//            out.writeUTF(line);
-//        }
-//        catch(IOException i)
-//        {
-//            System.out.println("error sender");
-//        }
+            int i = 0;
+            int frame_sent = 0;
 
-            for (String binFrame : binFrames) {
-                out.writeUTF(binFrame);
-                out.flush();    // envoi du frame i
+            while (i < binFrames.size()) {
+
+                if (frame_sent < WINDOW_SIZE) {
+                    out.writeUTF(binFrames.get(i));
+                    out.flush();
+                    frame_sent++;
+                    i++;
+                }
+
+                // TODO si on a recu RR      frame_sent % WINDOW_SIZE
             }
 
             out.close();
