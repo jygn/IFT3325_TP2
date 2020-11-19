@@ -5,26 +5,52 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 
-public class SenderV2{
+public class SenderV2 extends Thread{
 
     private Socket socket = null;
+    private DataInputStream in = null;
+    private DataOutputStream out = null;
+    private int frame_sent;
+
     public static final int WINDOW_SIZE = 1;    // (2^3) - 1 = 7
+
 
     public SenderV2(String address, int port){
         try {
+
             socket = new Socket(address, port);
+            //receive
+            in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+            //send
+            out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            frame_sent = 0;
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Connected");
     }
 
-    public void sendFrames(){
+    /**
+     * Listener
+     */
+    public void run () {
+        try {
+            while (true) {
+                String data = in.readUTF();
+                frame_sent--;
+                System.out.println("ack : " + data);
+
+            }
+
+        } catch (IOException e) {
+//            closeConnection();
+        }
+    }
+
+    public void sendFrames(String filname){
 
         byte[] data = new byte[0];
         try {
-            data = Files.readAllBytes(Paths.get("src/test/java/test.txt"));
+            data = Files.readAllBytes(Paths.get(filname));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,19 +76,39 @@ public class SenderV2{
 //            int frame_sent = 0;
         boolean done = false;
 
-        DataFlowController dfc = new DataFlowController(this.socket);
-        dfc.start();
-
         while (!done) { //frame_sent < WINDOW_SIZE &&
-            dfc.send(frames.get(i));
+            send(frames.get(i));
             i++;
             if(i >= frames.size() && !done) {
-                dfc.send("end");
+                send("end");
                 done = true;
             }
         }
 //                 TODO si on a recu RR      frame_sent % WINDOW_SIZE
 
+    }
+
+
+    public void send(String data) {
+        try {
+            out.writeUTF(data);
+            out.flush();
+            System.out.println("frame sent : " + data);
+            frame_sent++;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeConnection () {
+        try {
+            in.close();
+            out.close();
+            socket.close();
+            System.out.println("Socket closed");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String args[]){
