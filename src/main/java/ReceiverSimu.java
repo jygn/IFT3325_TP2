@@ -1,7 +1,7 @@
 import java.net.*;
 import java.io.*;
 
-public class Receiver extends Thread {
+public class ReceiverSimu extends Thread {
 
     private Socket socket = null;
     private ServerSocket server = null;
@@ -9,7 +9,7 @@ public class Receiver extends Thread {
     private int port;
     private DataOutputStream out = null;
 
-    public Receiver(int port){
+    public ReceiverSimu(int port){
         this.port = port;
     }
 
@@ -26,8 +26,8 @@ public class Receiver extends Thread {
             out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
         } catch (IOException i){
-        System.out.println(i);
-    }
+            System.out.println(i);
+        }
 
     }
 

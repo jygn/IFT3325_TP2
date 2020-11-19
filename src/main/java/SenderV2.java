@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class SenderV2 extends Thread{
 
+    private String address = "";
+    private int port;
     private Socket socket = null;
     private DataInputStream in = null;
     private DataOutputStream out = null;
@@ -18,12 +20,17 @@ public class SenderV2 extends Thread{
 
 
     public SenderV2(String address, int port, String filename){
+       this.address = address;
+       this.port = port;
+       this.filename = filename;
+    }
+
+    public void initSender() {
         try {
 
             socket = new Socket(address, port);
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-            this.filename = filename;
 
             frame_sent = 0;
             send_ready = true;
@@ -37,6 +44,8 @@ public class SenderV2 extends Thread{
      * Listener
      */
     public void run () {
+        this.initSender();
+
         try {
             while (true) {
                 String data = in.readUTF();
@@ -96,14 +105,14 @@ public class SenderV2 extends Thread{
             e.printStackTrace();
         }
 
-        FramesManager fm = new FramesManager(data);
+        FramesManager fm = new FramesManager();
 
-        ArrayList<Frame> framesList = fm.getFramesList();
+//        ArrayList<Frame> framesList = fm.getFramesList();
         ArrayList<String> bin_framesList = new ArrayList<>();
 
-        for (Frame f : framesList) {
-            bin_framesList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
-        }
+//        for (Frame f : framesList) {
+//            bin_framesList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
+//        }
 
         return bin_framesList;
 
