@@ -32,30 +32,7 @@ public class FramesManager {
 
     }
 
-    public String bitStuffing (String data) {
 
-        String stuffed = "";
-        int c = 0;
-        for (int i = 0; i < data.length(); i++) {
-
-            stuffed += data.charAt(i);
-
-            if (data.charAt(i) == '1') {
-                c++;
-            } else {
-                c = 0;
-            }
-
-            if (c == 5) {
-                stuffed += '0';
-                c = 0;
-            }
-
-        }
-
-        return stuffed;
-
-    }
 
     public ArrayList<Frame> getFramesList() {
         return framesList;

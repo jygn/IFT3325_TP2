@@ -36,7 +36,7 @@ public class Sender extends Thread{
             ArrayList<String> binFrames = new ArrayList<>();
 
             for (Frame f : framesList) {
-                binFrames.add(f.getFlag() + fm.bitStuffing(f.toBin()) + f.getFlag());
+                binFrames.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
             }
 
             socket = new Socket(address, port);

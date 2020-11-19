@@ -11,19 +11,23 @@ public class SenderV2 extends Thread{
     private DataInputStream in = null;
     private DataOutputStream out = null;
     private int frame_sent;
+    private boolean send_ready;
+    private String filename;
 
-    public static final int WINDOW_SIZE = 1;    // (2^3) - 1 = 7
+    public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
 
 
-    public SenderV2(String address, int port){
+    public SenderV2(String address, int port, String filename){
         try {
 
             socket = new Socket(address, port);
-            //receive
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            //send
             out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            this.filename = filename;
+
             frame_sent = 0;
+            send_ready = true;
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -36,33 +40,19 @@ public class SenderV2 extends Thread{
         try {
             while (true) {
                 String data = in.readUTF();
-                frame_sent--;
+//                if (data.length() != 0)
+//                    send_ready = true;
                 System.out.println("ack : " + data);
-
+                frame_sent--;
             }
-
-        } catch (IOException e) {
-//            closeConnection();
-        }
-    }
-
-    public void sendFrames(String filname){
-
-        byte[] data = new byte[0];
-        try {
-            data = Files.readAllBytes(Paths.get(filname));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        FramesManager fm = new FramesManager(data);
+    public void sendFrames(){
 
-        ArrayList<Frame> framesList = fm.getFramesList();
-        ArrayList<String> binFrames = new ArrayList<>();
-
-        for (Frame f : framesList) {
-            binFrames.add(f.getFlag() + fm.bitStuffing(f.toBin()) + f.getFlag());
-        }
+        // TODO ajouter createFramesList()
 
         ArrayList<String> frames = new ArrayList<>();
 
@@ -73,19 +63,14 @@ public class SenderV2 extends Thread{
         }
 
         int i = 0;
-//            int frame_sent = 0;
-        boolean done = false;
 
-        while (!done) { //frame_sent < WINDOW_SIZE &&
-            send(frames.get(i));
-            i++;
-            if(i >= frames.size() && !done) {
-                send("end");
-                done = true;
+        while (i < frames.size()) {
+            if ((frame_sent < WINDOW_SIZE) & send_ready) {
+                send(frames.get(i));
+//                send_ready = false;
+                i++;
             }
         }
-//                 TODO si on a recu RR      frame_sent % WINDOW_SIZE
-
     }
 
 
@@ -95,9 +80,33 @@ public class SenderV2 extends Thread{
             out.flush();
             System.out.println("frame sent : " + data);
             frame_sent++;
+            frame_sent = frame_sent%WINDOW_SIZE;
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<String> createFramesList () {
+
+        byte[] data = new byte[0];
+
+        try {
+            data = Files.readAllBytes(Paths.get(filename));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        FramesManager fm = new FramesManager(data);
+
+        ArrayList<Frame> framesList = fm.getFramesList();
+        ArrayList<String> bin_framesList = new ArrayList<>();
+
+        for (Frame f : framesList) {
+            bin_framesList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
+        }
+
+        return bin_framesList;
+
     }
 
     public void closeConnection () {
@@ -105,13 +114,10 @@ public class SenderV2 extends Thread{
             in.close();
             out.close();
             socket.close();
-            System.out.println("Socket closed");
+            System.out.println("Sender Socket closed");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String args[]){
-//        Sender sender = new Sender(args[0], Integer.parseInt(args[1]));
-    }
 }
