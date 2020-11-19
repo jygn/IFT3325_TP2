@@ -36,7 +36,7 @@ public class Sender extends Thread{
             ArrayList<String> binFrames = new ArrayList<>();
 
             for (Frame f : framesList) {
-                binFrames.add(f.getFlag() + fm.bitStuffing(f.toBin()) + f.getFlag());
+                binFrames.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
             }
 
             socket = new Socket(address, port);
@@ -51,9 +51,11 @@ public class Sender extends Thread{
                 frames.add(Integer.toString(k));
             }
 
-            out = new DataOutputStream(socket.getOutputStream());
+            out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            input = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            
+
             int i = 0;
             int frame_sent = 0;
             boolean done = false;
@@ -63,6 +65,7 @@ public class Sender extends Thread{
 
                 while (frame_sent < WINDOW_SIZE && !done) {
                     out.writeUTF(frames.get(i));
+                    out.flush();
                     System.out.println("frame sent : " + frames.get(i));
                     frame_sent++;
                     i++;
@@ -75,9 +78,11 @@ public class Sender extends Thread{
                 }
 
                 //receive from the server
-                ack = br.readLine();
+                ack = input.readUTF();
                 frame_sent--;
                 System.out.println("ack : " + ack);
+
+                //                ack = br.readLine();
 
                 if(Integer.parseInt(ack) == frames.size()){
                     break;
@@ -88,7 +93,9 @@ public class Sender extends Thread{
             System.out.println("sender close connection");
             out.close();
             socket.close();
-            br.close();
+            input.close();
+//            br.close();
+
 
         } catch (IOException u){
             System.out.println(u);

@@ -7,6 +7,7 @@ public class Receiver extends Thread {
     private ServerSocket server = null;
     private DataInputStream in = null;
     private int port;
+    private DataOutputStream out = null;
 
     public Receiver(int port){
         this.port = port;
@@ -23,11 +24,11 @@ public class Receiver extends Thread {
             System.out.println("Sender accepted");
 
             //receive
-            in = new DataInputStream(
-                    new BufferedInputStream(socket.getInputStream()));
+            in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
             //send
-            PrintStream ps = new PrintStream((socket.getOutputStream()));
+//            PrintStream ps = new PrintStream((socket.getOutputStream()));
+            out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
             try{
 
@@ -41,13 +42,15 @@ public class Receiver extends Thread {
                     ack = frame;
 
                     //send
-                    ps.println(ack);
+                    out.writeUTF(ack);
+                    out.flush();
                 }
 
                 System.out.println("Reciver Closing connection");
-                socket.close();
                 in.close();
-                ps.close();
+//                ps.close();
+                out.close();
+                socket.close();
                 server.close();
 
             } catch (IOException e){

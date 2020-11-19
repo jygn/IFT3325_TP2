@@ -22,7 +22,7 @@ public class Frame {
     public String toBin () {
         String t = Integer.toBinaryString(this.type);
         String n = Integer.toBinaryString(this.num);
-        String d = Utility.bytesToBin(this.data);
+        String d = DataManipulation.bytesToBin(this.data);
 
         return t+n+d;
     }
