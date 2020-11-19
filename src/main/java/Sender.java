@@ -52,10 +52,8 @@ public class Sender extends Thread{
             }
 
             out = new DataOutputStream(socket.getOutputStream());
-
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-
+            
             int i = 0;
             int frame_sent = 0;
             boolean done = false;
