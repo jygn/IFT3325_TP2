@@ -37,7 +37,7 @@ public class Receiver extends Thread {
 
         try{
             String frame, ack = "";
-            
+
             //read from sender
             while((!(frame = in.readUTF()).equals("end"))){
                 System.out.println("RECEIVER frame receive: " + frame);
