@@ -11,6 +11,16 @@ public class DataManipulation {
         return bin;
     }
 
+    public static String binToText (String bin) {
+        String text = "";
+
+        for (int i = 0; i < bin.length(); i+=8) {
+            text += (char) Integer.parseInt(bin.substring(i, i+8), 2);
+        }
+
+        return text;
+    }
+
     public static String bitStuffing (String data) {
 
         String seq = "";
@@ -58,6 +68,15 @@ public class DataManipulation {
         return seq;
     }
 
+
+    public static void main(String args[]){
+
+        byte[] test = {'a','l','l','o'};
+        String bin = DataManipulation.bytesToBin(test);
+
+        System.out.println(DataManipulation.binToText(bin));
+
+    }
 
 
 }
