@@ -37,9 +37,7 @@ public class Receiver extends Thread {
 
         try{
             String frame, ack = "";
-
-            //repeat as long as the client does not send a null string
-
+            
             //read from sender
             while((!(frame = in.readUTF()).equals("end"))){
                 System.out.println("RECEIVER frame receive: " + frame);
@@ -52,16 +50,24 @@ public class Receiver extends Thread {
                 out.flush();
             }
 
-            System.out.println("RECEIVER Closing connection");
-            in.close();
-            out.close();
-            socket.close();
-            server.close();
+            this.closeConnection();
 
         } catch (IOException e){
             e.printStackTrace();
         }
 
+    }
+
+    public void closeConnection() {
+        try{
+            in.close();
+            out.close();
+            socket.close();
+            server.close();
+            System.out.println("RECEIVER Closing connection");
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String args[]){

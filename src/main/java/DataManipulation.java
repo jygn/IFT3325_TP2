@@ -71,11 +71,14 @@ public class DataManipulation {
 
     public static void main(String args[]){
 
-        byte[] test = {'a','l','l','o'};
+        byte[] test = {'a'};
+
+
         String bin = DataManipulation.bytesToBin(test);
+        System.out.println(bin);
         System.out.println(bin.length());
 
-        System.out.println(DataManipulation.binToText(bin));
+//        System.out.println(DataManipulation.binToText(bin));
 
     }
 
