@@ -45,17 +45,16 @@ public class Sender extends Thread{
             int windowMin = 0; // inferior limit of the window
             int windowMax = WINDOW_SIZE; //upper limit of the window
             int windowIndex = 0; // at where we are in the list
-            int frame_sent = 0;
             boolean done = false;
             String ack;
+            System.out.println("SENDER frame size: " + binFrameList.size());
 
             while (true) {
 
-                while (windowIndex <= windowMax && !done) {
+                while (windowIndex <= windowMax && !done ) { //TODO doit verifier que windown est plus grand que nombre de frame
 
                     //add number of the frame
                     String frameToSend = binFrameList.get(windowIndex);
-                    frameToSend += "-" + windowIndex%WINDOW_SIZE;
 
                     //sent a frame
                     out.writeUTF(frameToSend);
@@ -110,7 +109,7 @@ public class Sender extends Thread{
         }
 
         fm = new FramesManager();
-        fm.createFramesList(data);
+        fm.createFramesList(data, WINDOW_SIZE);
         binFrameList = fm.getBinFrameList();
     }
 

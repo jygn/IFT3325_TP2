@@ -34,19 +34,22 @@ public class Receiver extends Thread {
     public void run(){
         System.out.println("RECEIVER thread is running");
         this.initReceiverConnection();
+        FramesManager fm = new FramesManager();
 
         try{
-            String frame, ack = "";
+            String binary = "";
+            int ack;
 
             //read from sender
-            while((!(frame = in.readUTF()).equals("end"))){
-                System.out.println("RECEIVER frame receive: " + frame);
+            while((!(binary = in.readUTF()).equals("end"))){
+                System.out.println("RECEIVER frame receive: " + binary);
+                Frame frame = fm.getFrame(binary);
 
                 //ack is the number of the frame + 1
-                ack = Integer.toString(Integer.parseInt(frame.substring(frame.length() - 1)) + 1);
+                ack = ((int)frame.getNum()) + 1;
 
                 //send
-                out.writeUTF(ack);
+                out.writeUTF(Integer.toString(ack));
                 out.flush();
             }
 
