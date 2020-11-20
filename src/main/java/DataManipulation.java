@@ -77,6 +77,7 @@ public class DataManipulation {
         return seq;
     }
 
+
     public static void main(String args[]){
 
         byte[] test = {'a','l','l','o'};

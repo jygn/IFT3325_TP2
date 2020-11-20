@@ -89,11 +89,7 @@ public class Sender extends Thread{
                 }
             }
 
-            System.out.println("SENDER sender close connection");
-            out.close();
-            socket.close();
-            in.close();
-
+            this.closeConnection();
         } catch (IOException u){
             System.out.println(u);
         }
@@ -131,6 +127,17 @@ public class Sender extends Thread{
             e.printStackTrace();
         }
         System.out.println("Connected");
+    }
+
+    public void closeConnection () {
+        try {
+            out.close();
+            socket.close();
+            in.close();
+            System.out.println("SENDER sender close connection");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
