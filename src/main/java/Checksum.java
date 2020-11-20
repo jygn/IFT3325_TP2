@@ -1,8 +1,15 @@
+import javax.xml.crypto.Data;
+
 public class Checksum {
 
     //CRC-CCITT (x^16 + x^12 + x^5 + 1)
     private final String POLYNOMIAL = "10001000000100001";
 
+    public String computeCRC (String msg) { // msg : 1000 0000 0000 0000
+        String reminder = xor_div(msg + getPadding());
+        reminder = DataManipulation.bitsPadding(reminder);  // reminder : 0001 1011 1001 1000
+        return msg + reminder;  // 1000 0000 0000 0000 0001 1011 1001 1000
+    }
 
     public String getPadding () {
         String padding = "";
@@ -20,8 +27,9 @@ public class Checksum {
         int i = 0;
         String reminder = "";
         int r = POLYNOMIAL.length();
+        int n_zeros = 0;
 
-        while (i < r) {
+        while (i < r) { // première division qui va donner un 1er reminder
 
             if (data.charAt(i) == POLYNOMIAL.charAt(i))
                 reminder += '0';
@@ -31,7 +39,7 @@ public class Checksum {
             i++;
         }
 
-        reminder += data.substring(i);
+        reminder += data.substring(i);      // ajoute le reste de la sequence à diviser
         if (reminder.charAt(0) == '0') {
             reminder = reminder.substring(zeroSeqCounter(reminder));
 
@@ -48,8 +56,12 @@ public class Checksum {
             i++;
 
             if (i >= r) {
-                if (reminder.charAt(0) == '0') {
-                    reminder = reminder.substring(zeroSeqCounter(reminder));
+                if (reminder.charAt(0) == '0') {    // trim les 0's au début
+                    n_zeros = zeroSeqCounter(reminder);
+                    if (n_zeros == reminder.length()) {   // 00000....
+                        break;
+                    }
+                    reminder = reminder.substring(n_zeros);
                 }
                 i=0;
             }
@@ -58,11 +70,16 @@ public class Checksum {
         return reminder;
     }
 
-    public int zeroSeqCounter (String data) {
-        int c = 0;
+    /**
+     * Compte la 1ère séquence de 0 de la sequence de bit
+     * @param binSeq : representation binaire en string
+     * @return : le nb de 0's de la 1ere sequence
+     */
+    public int zeroSeqCounter (String binSeq) {
         int i = 0;
-        while (data.charAt(i++) == '0') c++;
-        return c;
+        while ((binSeq.charAt(i) == '0') & (i < binSeq.length()-1))
+            i++;
+        return i;
     }
 
     public String bitFlip (String bitSeq, int index, char bit) {
@@ -74,12 +91,12 @@ public class Checksum {
         Checksum chk = new Checksum();
 
         byte[] data = {'a','l', 'l','o'};
-//        String bin = DataManipulation.bytesToBin(data);
         String bin = "1000000000000000";
-        bin = bin + chk.getPadding();
-        System.out.println(bin);
-        String reminder = chk.xor_div(bin);
-        System.out.println(DataManipulation.bitsPadding(reminder)); // TODO faire le padding à la fin pour connaitre le msg
+        String tosend = chk.computeCRC(bin);
+        System.out.println(tosend);
+
+        System.out.println(chk.xor_div(tosend));
+
 
     }
 }
