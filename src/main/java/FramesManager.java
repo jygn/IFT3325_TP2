@@ -54,6 +54,8 @@ public class FramesManager {
      */
     public Frame getFrame(String binFrame){
 
+        //TODO unstuffing ?? 
+
         //first get substring for different part
         String flag1 = binFrame.substring(0,8);
         byte type = DataManipulation.binToByte(binFrame.substring(8,16));
