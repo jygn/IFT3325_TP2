@@ -118,6 +118,15 @@ public class SenderV2 extends Thread{
 
     }
 
-
+    public void closeConnection () {
+        try {
+            in.close();
+            out.close();
+            socket.close();
+            System.out.println("Sender Socket closed");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

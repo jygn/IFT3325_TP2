@@ -20,8 +20,8 @@ public class Frame {
      * @return String : frame en format binaire
      */
     public String toBin () {
-        String t = Integer.toBinaryString(this.type);
-        String n = Integer.toBinaryString(this.num);
+        String t = DataManipulation.bitsPadding(Integer.toBinaryString(this.type));
+        String n = DataManipulation.bitsPadding(Integer.toBinaryString(this.num));
         String d = DataManipulation.bytesToBin(this.data);
 
         return t+n+d;

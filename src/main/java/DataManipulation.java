@@ -5,10 +5,19 @@ public class DataManipulation {
         String bin = "";
 
         for (byte b : bts) {
-            bin += Integer.toBinaryString(b);
+            bin += bitsPadding(Integer.toBinaryString(b));
         }
 
         return bin;
+    }
+
+    public static String bitsPadding (String bits) {
+
+        while (bits.length() != 8) {
+            bits = '0' + bits;
+        }
+
+        return bits;
     }
 
     public static String binToText (String bin) {
@@ -71,14 +80,12 @@ public class DataManipulation {
 
     public static void main(String args[]){
 
-        byte[] test = {'a'};
-
-
+        byte[] test = {'a','l','l','o', 'o', 'p'};
         String bin = DataManipulation.bytesToBin(test);
         System.out.println(bin);
-        System.out.println(bin.length());
 
-//        System.out.println(DataManipulation.binToText(bin));
+
+        System.out.println(DataManipulation.binToText(bin));
 
     }
 
