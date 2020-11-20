@@ -14,8 +14,8 @@ public class DataManipulation {
     public static String binToText (String bin) {
         String text = "";
 
-        for (int i = 0; i < bin.length(); i+=8) {
-            text += (char) Integer.parseInt(bin.substring(i, i+8), 2);
+        for (int i = 0; i < bin.length(); i+=7) {
+            text += (char) Integer.parseInt(bin.substring(i, i+7), 2);
         }
 
         return text;
