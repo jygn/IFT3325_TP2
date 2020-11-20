@@ -5,17 +5,26 @@ public class DataManipulation {
         String bin = "";
 
         for (byte b : bts) {
-            bin += Integer.toBinaryString(b);
+            bin += bitsPadding(Integer.toBinaryString(b));
         }
 
         return bin;
     }
 
+    public static String bitsPadding (String bits) {
+
+        while (bits.length() != 8) {
+            bits = '0' + bits;
+        }
+
+        return bits;
+    }
+
     public static String binToText (String bin) {
         String text = "";
 
-        for (int i = 0; i < bin.length(); i+=7) {
-            text += (char) Integer.parseInt(bin.substring(i, i+7), 2);
+        for (int i = 0; i < bin.length(); i+=8) {
+            text += (char) Integer.parseInt(bin.substring(i, i+8), 2);
         }
 
         return text;
@@ -68,12 +77,12 @@ public class DataManipulation {
         return seq;
     }
 
-
     public static void main(String args[]){
 
-        byte[] test = {'a','l','l','o'};
+        byte[] test = {'a','l','l','o', 'o', 'p'};
         String bin = DataManipulation.bytesToBin(test);
-        System.out.println(bin.length());
+        System.out.println(bin);
+
 
         System.out.println(DataManipulation.binToText(bin));
 
