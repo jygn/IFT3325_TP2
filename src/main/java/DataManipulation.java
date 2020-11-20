@@ -73,6 +73,7 @@ public class DataManipulation {
 
         byte[] test = {'a','l','l','o'};
         String bin = DataManipulation.bytesToBin(test);
+        System.out.println(bin.length());
 
         System.out.println(DataManipulation.binToText(bin));
 
