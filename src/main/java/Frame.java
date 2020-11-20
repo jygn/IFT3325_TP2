@@ -5,6 +5,8 @@ public class Frame {
     private byte num;
     private byte[] data;
     private String CRC;
+    private String flag1;
+    private String flag2;
 
     public Frame(byte type, int num, byte[] data) {
 
@@ -13,6 +15,22 @@ public class Frame {
         this.data = data;
 //        this.CRC = CRC;
 
+    }
+
+    public byte getNum() {
+        return num;
+    }
+
+    public void setNum(byte num) {
+        this.num = num;
+    }
+
+    public Frame(String flag1, byte type, int num, byte[] data, String flag2) {
+        this.flag1 = flag1;
+        this.type = type;
+        this.num = (byte) num;
+        this.data = data;
+        this.flag2 = flag2;
     }
 
     /**
