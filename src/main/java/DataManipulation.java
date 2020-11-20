@@ -79,10 +79,15 @@ public class DataManipulation {
 
     public static void main(String args[]){
 
-        byte[] test = {'a','l','l','o', 'o', 'p'};
+        byte[] test = {'a','l','l','o'};
         String bin = DataManipulation.bytesToBin(test);
+        bin += "11111111";
         System.out.println(bin);
 
+        String stuffed = bitStuffing(bin);
+        System.out.println(stuffed);
+        String unstuff = bitUnStuffing(stuffed);
+        System.out.println(unstuff);
 
         System.out.println(DataManipulation.binToText(bin));
 
