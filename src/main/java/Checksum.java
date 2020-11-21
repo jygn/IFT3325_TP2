@@ -7,8 +7,7 @@ public class Checksum {
 
     public static String calculCRC (String msg) { // msg : 1000 0000 0000 0000
         String reminder = xor_div(msg + getPadding());
-        reminder = DataManipulation.bitsPadding(reminder);  // reminder : 0001 1011 1001 1000
-        return msg + reminder;  // 1000 0000 0000 0000 0001 1011 1001 1000
+        return DataManipulation.bitsPadding(reminder);  // reminder : 0001 1011 1001 1000
     }
 
     public static String getPadding () {
@@ -92,10 +91,10 @@ public class Checksum {
 
         byte[] data = {'a','l', 'l','o'};
         String bin = "1000000000000000";
-        String tosend = chk.calculCRC(bin);
-        System.out.println(tosend);
-
-        System.out.println(chk.xor_div(tosend));
+//        String tosend = chk.calculCRC(bin);
+//        System.out.println(tosend);
+//
+//        System.out.println(chk.xor_div(tosend));
 
 
     }

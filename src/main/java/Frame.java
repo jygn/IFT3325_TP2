@@ -73,11 +73,12 @@ public class Frame {
 
 
     public String computeCRC() {
+
         String t = DataManipulation.bitsPadding(Integer.toBinaryString(this.type));
         String n = DataManipulation.bitsPadding(Integer.toBinaryString(this.num));
         String d = DataManipulation.bytesToBin(this.data);
 
-        return Checksum.xor_div(t+n+d);
+        return Checksum.calculCRC(t+n+d);
     }
 
     /**

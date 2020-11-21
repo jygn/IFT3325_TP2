@@ -41,9 +41,7 @@ public class FramesManager {
 
             //add flag and convert frames to binary
             for (Frame f : framesList) {
-                System.out.println("before stuffing " + f.toBin().length());
                 binFrameList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
-                System.out.println("after stuffing " + DataManipulation.bitStuffing(f.toBin()).length());
             }
         }
     }
