@@ -88,7 +88,7 @@ public class Sender extends Thread{
                 }
             }
 
-            this.closeConnection();
+//            this.closeConnection();
         } catch (IOException u){
             System.out.println(u);
         }
