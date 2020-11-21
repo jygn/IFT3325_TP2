@@ -38,6 +38,27 @@ public class Frame {
         this.num = num;
     }
 
+    public byte getType() {
+        return type;
+    }
+
+    public void setType(byte type) {
+        this.type = type;
+    }
+
+    public String getTypeInString(){
+        return DataManipulation.byteToString(this.type);
+    }
+
+    public Frame(String flag1, byte type, int num, byte[] data, String CRC, String flag2) {
+        this.flag1 = flag1;
+        this.type = type;
+        this.num = (byte) num;
+        this.data = data;
+        this.CRC = CRC;
+        this.flag2 = flag2;
+    }
+
     /**
      * Représentation d'un frame sous format binaire
      * @return String : frame en format binaire

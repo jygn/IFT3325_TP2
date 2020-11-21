@@ -44,6 +44,28 @@ public class Receiver extends Thread {
             while((!(input = in.readUTF()).equals("end"))){
                 System.out.println("RECEIVER frame receive: " + input);
                 Frame frame = handleInput(input);
+
+                //evaluate wich type of frame we receive
+                switch (frame.getTypeInString()) {
+                    case "I": //information
+                        //TODO
+                        break;
+                    case "C": // Connection request
+                        //TODO
+                        break;
+                    case "F": // end of communication
+                        //TODO
+                        break;
+                    case "P": //  P bit
+                        //TODO
+                        break;
+                    default:
+                        //TODO throw error??
+                }
+
+
+
+
                 //ack is the number of the frame + 1
                 ack = ((int)frame.getNum()) + 1;
 
@@ -69,7 +91,6 @@ public class Receiver extends Thread {
         return new Frame(binFrame);
 
     }
-
 
 
     public void closeConnection() {
