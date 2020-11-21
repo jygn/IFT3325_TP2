@@ -78,10 +78,10 @@ public class FramesManager {
 
     }
 
-    public Frame getFrameAck(Frame fm) {
+    public Frame getFrameAck(Frame fm, int windowSize) {
 
         //send aknowledgement
-        return new Frame("A", (fm.getNum() + 1)% 7); //window size
+        return new Frame("A", (fm.getNum() + 1)% windowSize); //window size
     }
 
 

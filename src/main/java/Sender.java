@@ -46,7 +46,6 @@ public class Sender extends Thread{
         int windowMax = WINDOW_SIZE - 1; //upper limit of the window
         int windowIndex = 0; // at where we are in the list
         boolean allFrameSent = false;
-        boolean allAckReceived = false;
         boolean closeConfirmation = false;
         String input, ack;
         Frame frameInput;
@@ -100,7 +99,6 @@ public class Sender extends Thread{
                     out.writeUTF(fm.getFrameToSend(frameCloseConnection));
                     out.flush();
                     allFrameSent = true;
-                    lastAckToreceived = windowIndex % WINDOW_SIZE;
                     System.out.println("SENDER Sender done");
                 }
 
@@ -128,13 +126,8 @@ public class Sender extends Thread{
                         System.out.println("SENDER error in frame");
                 }
 
-                //all ack received
-                System.out.println(frameInput.getNum());
-                if(allFrameSent && frameInput.getNum() == lastAckToreceived) {
-                    allAckReceived = true;
-                }
                 //close connection from server received
-                if(closeConfirmation && allAckReceived) {
+                if(closeConfirmation) {
                     this.closeConnection();
                     break;
                 }
