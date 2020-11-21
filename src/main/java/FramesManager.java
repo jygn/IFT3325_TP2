@@ -11,14 +11,13 @@ public class FramesManager {
     public ArrayList<String> binFrameList;
 
     public void createFramesList(byte[] data, int windowSize){
-        framesList = new ArrayList<Frame>() {
-        };
+        framesList = new ArrayList<>();
 
         byte type;
         int num;
         Frame frame;
 
-        int n = (int) Math.ceil((double) data.length / data_size); // nb de frame TODO: revoir..
+        int n = (int) Math.ceil((double) data.length / data_size); // nb de frames
         byte[] data_chunk;
         int src_pos = 0;
 
@@ -26,13 +25,14 @@ public class FramesManager {
             type = 'I'; // test
             num = i % windowSize;
 
-
             data_chunk = new byte[data_size];
-            if (data.length - (i * data_size) < data_size) // last data chunk
-                System.arraycopy(data, src_pos, data_chunk, 0, data.length - (i * data_size));
-            else
-                System.arraycopy(data, src_pos, data_chunk, 0, data_size);
 
+            if (data.length - (i * data_size) < data_size) {// last data chunk
+                data_chunk = new byte[data.length - (i * data_size)];
+                System.arraycopy(data, src_pos, data_chunk, 0, data.length - (i * data_size));
+            } else {
+                System.arraycopy(data, src_pos, data_chunk, 0, data_size);
+            }
 
             framesList.add(new Frame(type, num, data_chunk));
             src_pos += data_size;

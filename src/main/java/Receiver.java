@@ -44,7 +44,6 @@ public class Receiver extends Thread {
             while((!(input = in.readUTF()).equals("end"))){
                 System.out.println("RECEIVER frame receive: " + input);
                 Frame frame = handleInput(input);
-
                 //ack is the number of the frame + 1
                 ack = ((int)frame.getNum()) + 1;
 
