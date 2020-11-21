@@ -35,27 +35,33 @@ public class Receiver extends Thread {
         System.out.println("RECEIVER thread is running");
         this.initReceiverConnection();
         FramesManager fm = new FramesManager();
+        Frame frameInput;
+        Frame frameOutput = null;
+        boolean allFrameReceived = false;
 
         try{
             String input = "";
             int ack;
 
             //read from sender
-            while((!(input = in.readUTF()).equals("end"))){
+            receiver:
+            while(true){
+                input = in.readUTF();
                 System.out.println("RECEIVER frame receive: " + input);
-                Frame frame = handleInput(input);
+                frameInput = fm.handleInput(input);
 
                 //evaluate wich type of frame we receive
-                switch (frame.getTypeInString()) {
+                switch (frameInput.getTypeInString()) {
                     case "I": //information
-                        //TODO
+                        //ack is the number of the frame + 1
+                        frameOutput = fm.getFrameAck(frameInput);
                         break;
                     case "C": // Connection request
-                        //TODO
+                        frameOutput = fm.getFrameConnectionConfirmation(frameInput);
                         break;
                     case "F": // end of communication
-                        //TODO
-                        break;
+                        frameOutput = new Frame("F", 0);
+                        allFrameReceived = true;
                     case "P": //  P bit
                         //TODO
                         break;
@@ -63,15 +69,18 @@ public class Receiver extends Thread {
                         //TODO throw error??
                 }
 
-
-
-
-                //ack is the number of the frame + 1
-                ack = ((int)frame.getNum()) + 1;
-
                 //send
-                out.writeUTF(Integer.toString(ack));
-                out.flush();
+                if(frameOutput != null){
+                    out.writeUTF(fm.getFrameToSend(frameOutput));
+                    out.flush();
+                    System.out.println("RECEIVER response sent");
+                } else {
+                    //TODO throw error?
+                    System.out.println("RECEIVER error frameOuput is null");
+                }
+
+                if(allFrameReceived) break;
+
             }
 
             this.closeConnection();
@@ -82,16 +91,7 @@ public class Receiver extends Thread {
 
     }
 
-    // TODO : handleInput..
 
-    public Frame handleInput (String input) {
-        input = input.substring(8, input.length() - 8);    // without flags
-
-        String binFrame = DataManipulation.bitUnStuffing(input);    // remove bit stuffing
-
-        return new Frame(binFrame);
-
-    }
 
     public void closeConnection() {
         try{

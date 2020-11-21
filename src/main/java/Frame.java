@@ -1,3 +1,5 @@
+import javax.xml.crypto.Data;
+
 public class Frame {
 
     private static final String flag  = "01111110";
@@ -17,18 +19,44 @@ public class Frame {
 
     }
 
+    //different type of frame
+    public Frame(String type, int num) {
+
+        this.type = DataManipulation.stringTobyte(type);
+        this.num = (byte)num;
+        this.data = null;
+        this.CRC = computeCRC();
+    }
+
     public Frame(String binFrame) {
 
-        this.type = DataManipulation.binToByte(binFrame.substring(0,8));
-        this.num = (byte) DataManipulation.binToInt(binFrame.substring(8,16));
+        //TODO switch selon le type -> construit le frame selon son type
+        String type = this.getFrameTypeInString(DataManipulation.binToByte(binFrame.substring(0, 8)));
 
-        //data
-        String dataString = binFrame.substring(16, binFrame.length()-16);
-        this.data = DataManipulation.binToBytes(dataString, dataString.length());
+        switch (type) {
+            case "I":
+                this.type = DataManipulation.binToByte(binFrame.substring(0, 8));
+                this.num = (byte) DataManipulation.binToInt(binFrame.substring(8, 16));
+                //data
+                String dataString = binFrame.substring(16, binFrame.length() - 16);
+                this.data = DataManipulation.binToBytes(dataString, dataString.length());
+                this.CRC = binFrame.substring(binFrame.length() - 16);
+                break;
 
-        this.CRC = binFrame.substring(binFrame.length()-16);
+            case "C":
+
+            case "A":
+                this.type = DataManipulation.binToByte(binFrame.substring(0, 8));
+                this.num = (byte) DataManipulation.binToInt(binFrame.substring(8, 16));
+                this.CRC = binFrame.substring(binFrame.length() - 16);
+                break;
+
+            default:
+                System.out.println("error in frame");
+        }
 
     }
+
 
     public byte getNum() {
         return num;
@@ -40,6 +68,10 @@ public class Frame {
 
     public byte getType() {
         return type;
+    }
+
+    private String getFrameTypeInString(byte bits){
+        return DataManipulation.byteToString(bits);
     }
 
     public void setType(byte type) {
@@ -66,6 +98,8 @@ public class Frame {
     public String toBin () {
         String t = DataManipulation.bitsPadding(Integer.toBinaryString(this.type));
         String n = DataManipulation.bitsPadding(Integer.toBinaryString(this.num));
+
+        if(this.data == null) return t+n; //some frame doesnt have data
         String d = DataManipulation.bytesToBin(this.data);
 
         return t+n+d+this.CRC;
@@ -76,6 +110,8 @@ public class Frame {
 
         String t = DataManipulation.bitsPadding(Integer.toBinaryString(this.type));
         String n = DataManipulation.bitsPadding(Integer.toBinaryString(this.num));
+
+        if( this.data == null) return Checksum.calculCRC(t+n);
         String d = DataManipulation.bytesToBin(this.data);
 
         return Checksum.calculCRC(t+n+d);

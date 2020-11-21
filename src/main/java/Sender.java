@@ -41,17 +41,46 @@ public class Sender extends Thread{
         this.initFrames();
         System.out.println("SENDER frames ready to be sent");
 
-        try {
-            int windowMin = 0; // inferior limit of the window
-            int windowMax = WINDOW_SIZE; //upper limit of the window
-            int windowIndex = 0; // at where we are in the list
-            boolean done = false;
-            String ack;
-            System.out.println("SENDER frame size: " + binFrameList.size());
 
+        int windowMin = 0; // inferior limit of the window
+        int windowMax = WINDOW_SIZE - 1; //upper limit of the window
+        int windowIndex = 0; // at where we are in the list
+        boolean allFrameSent = false;
+        boolean allAckReceived = false;
+        boolean closeConfirmation = false;
+        String input, ack;
+        Frame frameInput;
+
+        System.out.println("SENDER frame size: " + binFrameList.size());
+
+        try {
+
+            //set up connection
+            Frame connectionFrame = new Frame("C", 0);
+            out.writeUTF(fm.getFrameToSend(connectionFrame));
+            out.flush();
+            System.out.println("SENDER connection frame sent");
+
+            //wait for confirmation of the connection
+            input = in.readUTF();
+            frameInput = fm.handleInput(input);
+            int lastAckToreceived = 0;
+
+            if(DataManipulation.byteToString(frameInput.getType()).equals("A") && frameInput.getNum() == 0){
+                System.out.println("SENDER connection go-back-N established");
+            } else if(DataManipulation.byteToString(frameInput.getType()).equals("F")){
+                this.closeConnection();
+                System.out.println("SENDER no go-back-N connection established");
+                System.exit(0);
+            } else {
+                System.out.println("SENDER error in establishing connection");
+                System.exit(0);
+            }
+
+            //start to send all the data
             while (true) {
 
-                while (windowIndex <= windowMax && !done ) { //TODO doit verifier que windown est plus grand que nombre de frame
+                while (windowIndex <= windowMax && !allFrameSent ) { //TODO doit verifier que window est plus grand que nombre de frame
 
                     //add number of the frame
                     String frameToSend = binFrameList.get(windowIndex);
@@ -63,34 +92,57 @@ public class Sender extends Thread{
 
                     //update window index
                     windowIndex++;
+                    lastAckToreceived = DataManipulation.binToInt(frameToSend.substring(8, 16));
                 }
 
-                //temporary, need to establish another way to signal the end to the receiver, maybe a time out
-                if(windowIndex >= binFrameList.size() && !done) {
-                    out.writeUTF("end");
-                    done = true;
+                //close the communication
+                if(windowIndex >= binFrameList.size() && !allFrameSent) {
+                    Frame frameCloseConnection = new Frame("F", 0);
+                    out.writeUTF(fm.getFrameToSend(frameCloseConnection));
+                    out.flush();
+                    allFrameSent = true;
+                    lastAckToreceived = frameInput.getNum() + 1;
                     System.out.println("SENDER Sender done");
                 }
 
                 //receive from the server
-                ack = in.readUTF();
-                System.out.println("SENDER ack : " + ack);
+                input = in.readUTF();
+                frameInput = fm.handleInput(input);
+                System.out.println("SENDER ack : " + frameInput.getNum());
 
-                //update the window
-                windowMin = newWindowMin(windowMin, Integer.parseInt(ack.substring(ack.length() - 1))); //shit the limit inferior of the window (
-                System.out.println("SENDER windowMin: " + windowMin);
+                switch (frameInput.getTypeInString()){
+                    case "A":
+                        //TODO
+                        //update the window
+                        windowMin = newWindowMin(windowMin, frameInput.getNum()); //shift the limit inferior of the window (
+                        System.out.println("SENDER windowMin: " + windowMin);
 
-                windowMax = windowMin + (WINDOW_SIZE - 1);
-                System.out.println("SENDER windowMax: " + windowMax);
+                        windowMax = windowMin + (WINDOW_SIZE - 1);
+                        System.out.println("SENDER windowMax: " + windowMax);
+                        break;
+                    case "F":
+                        //TODO
+                        closeConfirmation = true;
+                        System.out.println("SENDER confirmation from receiver to close the connection");
+                        break;
+                    default:
+                        System.out.println("SENDER error in frame");
+                }
 
-                //TODO
-                if(done){
+                //all ack received
+                System.out.println(frameInput.getNum());
+                if(allFrameSent && frameInput.getNum() == lastAckToreceived) {
+                    allAckReceived = true;
+                }
+                //close connection from server received
+                if(closeConfirmation && allAckReceived) {
+                    this.closeConnection();
                     break;
                 }
+
             }
 
-//            this.closeConnection();
-            System.out.println("SENDER fake close connection");
+            this.closeConnection();
         } catch (IOException u){
             System.out.println(u);
         }
@@ -127,7 +179,7 @@ public class Sender extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Connected");
+        System.out.println("SENDER socket Connected");
     }
 
     public void closeConnection () {
@@ -148,7 +200,7 @@ public class Sender extends Thread{
 
         while (indexWindowMin != ack){
             windowMin++;
-            indexWindowMin++;
+            indexWindowMin = (indexWindowMin + 1)%WINDOW_SIZE;
         }
 
         return windowMin;

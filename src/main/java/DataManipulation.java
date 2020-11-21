@@ -104,6 +104,11 @@ public class DataManipulation {
         return seq;
     }
 
+    public static byte stringTobyte (String data){
+        byte[] b = data.getBytes();
+        return b[0];
+    }
+
 
     public static void main(String args[]){
 

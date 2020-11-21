@@ -50,6 +50,40 @@ public class FramesManager {
         return binFrameList;
     }
 
+    public String getFrameToSend(Frame fm){
+        return fm.getFlag() + fm.toBin() + fm.getFlag();
+    }
+
+    public Frame getFrameConnectionConfirmation(Frame fm) {
+
+        // go-back-N request
+        if(fm.getNum() == 0){
+            //send RR0 -> is waiting for the first frame
+            return new Frame("A",0);
+
+        } else { //not supported
+            //send an end of communication
+            return new Frame("F", 0);
+        }
+    }
+
+    // TODO : handleInput..
+
+    public Frame handleInput (String input) {
+        input = input.substring(8, input.length() - 8);    // without flags
+
+        String binFrame = DataManipulation.bitUnStuffing(input);    // remove bit stuffing
+
+        return new Frame(binFrame);
+
+    }
+
+    public Frame getFrameAck(Frame fm) {
+
+        //send aknowledgement
+        return new Frame("A", (fm.getNum() + 1)% 7); //window size
+    }
+
 
 
     //Test
@@ -62,7 +96,6 @@ public class FramesManager {
 
 
     }
-
 
 
 }
