@@ -55,7 +55,7 @@ public class Sender extends Thread{
         try {
 
             //set up connection
-            Frame connectionFrame = new Frame("C", 0);
+            Frame connectionFrame = new Frame('C', 0);
             out.writeUTF(fm.getFrameToSend(connectionFrame));
             out.flush();
             System.out.println("SENDER connection frame sent");
@@ -97,7 +97,7 @@ public class Sender extends Thread{
 
                 //close the communication
                 if(windowIndex >= binFrameList.size() && !allFrameSent) {
-                    Frame frameCloseConnection = new Frame("F", 0);
+                    Frame frameCloseConnection = new Frame('F', 0);
                     out.writeUTF(fm.getFrameToSend(frameCloseConnection));
                     out.flush();
                     allFrameSent = true;
@@ -110,9 +110,8 @@ public class Sender extends Thread{
                 frameInput = new Frame(input);
                 System.out.println("SENDER ack : " + frameInput.getNum());
 
-                String t = frameInput.getTypeInString();
-                switch (frameInput.getTypeInString()){
-                    case "A":
+                switch (frameInput.getType()){
+                    case 'A':
                         //TODO
                         //update the window
                         windowMin = newWindowMin(windowMin, frameInput.getNum()); //shift the limit inferior of the window (
@@ -121,7 +120,7 @@ public class Sender extends Thread{
                         windowMax = windowMin + (WINDOW_SIZE - 1);
                         System.out.println("SENDER windowMax: " + windowMax);
                         break;
-                    case "F":
+                    case 'F':
                         //TODO
                         closeConfirmation = true;
                         System.out.println("SENDER confirmation from receiver to close the connection");

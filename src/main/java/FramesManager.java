@@ -59,11 +59,11 @@ public class FramesManager {
         // go-back-N request
         if(fm.getNum() == 0){
             //send RR0 -> is waiting for the first frame
-            return new Frame("A",0);
+            return new Frame('A',0);
 
         } else { //not supported
             //send an end of communication
-            return new Frame("F", 0);
+            return new Frame('F', 0);
         }
     }
 
@@ -78,7 +78,7 @@ public class FramesManager {
     public Frame getFrameAck(Frame fm, int windowSize) {
 
         //send aknowledgement
-        return new Frame("A", (fm.getNum() + 1)% windowSize); //window size
+        return new Frame('A', (fm.getNum() + 1)% windowSize); //window size
     }
 
     /**

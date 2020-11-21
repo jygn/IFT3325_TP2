@@ -20,9 +20,9 @@ public class Frame {
     }
 
     //different type of frame
-    public Frame(String type, int num) {
+    public Frame(char type, int num) {
 
-        this.type = DataManipulation.stringTobyte(type);
+        this.type = (byte) type;
         this.num = (byte)num;
         this.data = null;
         this.CRC = computeCRC();
@@ -31,24 +31,21 @@ public class Frame {
     public Frame(String binFrame) {
 
         //TODO switch selon le type -> construit le frame selon son type
-        String type = this.getFrameTypeInString(DataManipulation.binToByte(binFrame.substring(0, 8)));
+        byte type = DataManipulation.binToByte(binFrame.substring(0, 8));
 
         switch (type) {
-            case "I":
-                this.type = DataManipulation.binToByte(binFrame.substring(0, 8));
+            case 'I':
+                this.type = type;
                 this.num = (byte) DataManipulation.binToInt(binFrame.substring(8, 16));
                 //data
                 String dataString = binFrame.substring(16, binFrame.length() - 16);
                 this.data = DataManipulation.binToBytes(dataString, dataString.length());
                 this.CRC = binFrame.substring(binFrame.length() - 16);
                 break;
-
-            case "C":
-            case "F":
-            case "A":
-
-            case "F":
-                this.type = DataManipulation.binToByte(binFrame.substring(0, 8));
+            case 'C':
+            case 'A':
+            case 'F':
+                this.type = type;
                 this.num = (byte) DataManipulation.binToInt(binFrame.substring(8, 16));
                 this.CRC = binFrame.substring(binFrame.length() - 16);
                 break;

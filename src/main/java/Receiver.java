@@ -59,18 +59,18 @@ public class Receiver extends Thread {
                 frameInput = new Frame(input);
 
                 //evaluate wich type of frame we receive
-                switch (frameInput.getTypeInString()) {
-                    case "I": //information
+                switch (frameInput.getType()) {
+                    case 'I': //information
                         //ack is the number of the frame + 1
                         frameOutput = fm.getFrameAck(frameInput, WINDOW_SIZE);
                         break;
-                    case "C": // Connection request
+                    case 'C': // Connection request
                         frameOutput = fm.getFrameConnectionConfirmation(frameInput);
                         break;
-                    case "F": // end of communication
-                        frameOutput = new Frame("F", 0);
+                    case 'F': // end of communication
+                        frameOutput = new Frame('F', 0);
                         allFrameReceived = true;
-                    case "P": //  P bit
+                    case 'P': //  P bit
                         //TODO
                         break;
                     default:
