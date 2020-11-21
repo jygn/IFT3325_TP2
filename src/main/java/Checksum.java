@@ -3,15 +3,15 @@ import javax.xml.crypto.Data;
 public class Checksum {
 
     //CRC-CCITT (x^16 + x^12 + x^5 + 1)
-    private final String POLYNOMIAL = "10001000000100001";
+    private static final String POLYNOMIAL = "10001000000100001";
 
-    public String computeCRC (String msg) { // msg : 1000 0000 0000 0000
+    public static String calculCRC (String msg) { // msg : 1000 0000 0000 0000
         String reminder = xor_div(msg + getPadding());
         reminder = DataManipulation.bitsPadding(reminder);  // reminder : 0001 1011 1001 1000
         return msg + reminder;  // 1000 0000 0000 0000 0001 1011 1001 1000
     }
 
-    public String getPadding () {
+    public static String getPadding () {
         String padding = "";
         int r = POLYNOMIAL.length();
         for (int i = 0; i < r-1 ; i++) {
@@ -20,7 +20,7 @@ public class Checksum {
         return padding;
     }
 
-    public String xor_div (String data) {
+    public static String xor_div (String data) {
 
         data = data.substring(zeroSeqCounter(data));    // trim les 0's au début
 
@@ -75,14 +75,14 @@ public class Checksum {
      * @param binSeq : representation binaire en string
      * @return : le nb de 0's de la 1ere sequence
      */
-    public int zeroSeqCounter (String binSeq) {
+    public static int zeroSeqCounter (String binSeq) {
         int i = 0;
         while ((binSeq.charAt(i) == '0') & (i < binSeq.length()-1))
             i++;
         return i;
     }
 
-    public String bitFlip (String bitSeq, int index, char bit) {
+    public static String bitFlip (String bitSeq, int index, char bit) {
         return bitSeq.substring(0, index) + bit + bitSeq.substring(index+1);
     }
 
@@ -92,7 +92,7 @@ public class Checksum {
 
         byte[] data = {'a','l', 'l','o'};
         String bin = "1000000000000000";
-        String tosend = chk.computeCRC(bin);
+        String tosend = chk.calculCRC(bin);
         System.out.println(tosend);
 
         System.out.println(chk.xor_div(tosend));

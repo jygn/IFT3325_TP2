@@ -1,3 +1,4 @@
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,6 +16,7 @@ public class FramesManager {
 
         byte type;
         int num;
+        Frame frame;
 
         int n = (int) Math.ceil((double) data.length / data_size); // nb de frame TODO: revoir..
         byte[] data_chunk;
@@ -22,14 +24,15 @@ public class FramesManager {
 
         for (int i = 0; i < n; i++) {
             type = 'I'; // test
-            num = i % windowSize;  //2^3 = 8 combinaisons
-            // TODO crc = getcrc()...
+            num = i % windowSize;
+
 
             data_chunk = new byte[data_size];
             if (data.length - (i * data_size) < data_size) // last data chunk
                 System.arraycopy(data, src_pos, data_chunk, 0, data.length - (i * data_size));
             else
                 System.arraycopy(data, src_pos, data_chunk, 0, data_size);
+
 
             framesList.add(new Frame(type, num, data_chunk));
             src_pos += data_size;
@@ -58,16 +61,22 @@ public class FramesManager {
 
         //first get substring for different part
         String flag1 = binFrame.substring(0,8);
+        String flag2 = binFrame.substring(binFrame.length() - 8);
+
+        binFrame = binFrame.substring(8, binFrame.length() - 8);    // without flags
+        binFrame = DataManipulation.bitUnStuffing(binFrame);    // remove bit stuffing
+
         byte type = DataManipulation.binToByte(binFrame.substring(8,16));
         int num = DataManipulation.binToInt(binFrame.substring(16,24));
-        String flag2 = binFrame.substring(binFrame.length() - 8);
 
         //data
         String dataString = binFrame.substring(24, binFrame.length() -8 );
         int dataSize = dataString.length();
         byte[] data = DataManipulation.binToBytes(dataString, dataSize);
 
-        return new Frame(flag1, type, num, data, flag2);
+        String CRC = binFrame.substring(24, 40);
+
+        return new Frame(flag1, type, num, data, CRC, flag2);
     }
 
     //Test

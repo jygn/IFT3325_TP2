@@ -13,7 +13,7 @@ public class Frame {
         this.type = type;
         this.num = (byte) num;
         this.data = data;
-//        this.CRC = CRC;
+        this.CRC = computeCRC();
 
     }
 
@@ -25,11 +25,12 @@ public class Frame {
         this.num = num;
     }
 
-    public Frame(String flag1, byte type, int num, byte[] data, String flag2) {
+    public Frame(String flag1, byte type, int num, byte[] data, String CRC, String flag2) {
         this.flag1 = flag1;
         this.type = type;
         this.num = (byte) num;
         this.data = data;
+        this.CRC = CRC;
         this.flag2 = flag2;
     }
 
@@ -42,7 +43,29 @@ public class Frame {
         String n = DataManipulation.bitsPadding(Integer.toBinaryString(this.num));
         String d = DataManipulation.bytesToBin(this.data);
 
-        return t+n+d;
+        return t+n+d+this.CRC;
+    }
+
+
+    public String computeCRC() {
+        String t = DataManipulation.bitsPadding(Integer.toBinaryString(this.type));
+        String n = DataManipulation.bitsPadding(Integer.toBinaryString(this.num));
+        String d = DataManipulation.bytesToBin(this.data);
+
+        return Checksum.xor_div(t+n+d);
+    }
+
+    /**
+     * Vérifie si le frame reçue n'est pas erroné
+     * @param data : frame reçu sous format binaire (string)
+     * @return : boolean
+     */
+    public boolean errorCheck(String data) {
+        boolean isWrong = false;
+        if (!Checksum.xor_div(data).equals("0")) {
+            isWrong = true;
+        }
+        return isWrong;
     }
 
     public String getFlag() {

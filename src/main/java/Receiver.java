@@ -43,7 +43,16 @@ public class Receiver extends Thread {
             //read from sender
             while((!(binary = in.readUTF()).equals("end"))){
                 System.out.println("RECEIVER frame receive: " + binary);
+
+
+
+
+
                 Frame frame = fm.getFrame(binary);
+
+
+
+
 
                 //ack is the number of the frame + 1
                 ack = ((int)frame.getNum()) + 1;
@@ -60,6 +69,10 @@ public class Receiver extends Thread {
         }
 
     }
+
+    // TODO : handleInput..
+
+
 
     public void closeConnection() {
         try{
