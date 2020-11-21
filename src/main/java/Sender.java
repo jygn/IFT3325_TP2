@@ -83,12 +83,14 @@ public class Sender extends Thread{
                 windowMax = windowMin + (WINDOW_SIZE - 1);
                 System.out.println("SENDER windowMax: " + windowMax);
 
-                if(windowIndex == binFrameList.size()){
+                //TODO
+                if(done){
                     break;
                 }
             }
 
 //            this.closeConnection();
+            System.out.println("SENDER fake close connection");
         } catch (IOException u){
             System.out.println(u);
         }

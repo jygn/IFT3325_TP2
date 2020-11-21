@@ -86,12 +86,12 @@ public class Receiver extends Thread {
 
     public Frame handleInput (String input) {
         input = input.substring(8, input.length() - 8);    // without flags
+
         String binFrame = DataManipulation.bitUnStuffing(input);    // remove bit stuffing
 
         return new Frame(binFrame);
 
     }
-
 
     public void closeConnection() {
         try{
