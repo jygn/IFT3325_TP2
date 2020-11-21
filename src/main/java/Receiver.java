@@ -37,18 +37,13 @@ public class Receiver extends Thread {
         FramesManager fm = new FramesManager();
 
         try{
-            String binary = "";
+            String input = "";
             int ack;
 
             //read from sender
-            while((!(binary = in.readUTF()).equals("end"))){
-                System.out.println("RECEIVER frame receive: " + binary);
-
-
-
-
-
-                Frame frame = fm.getFrame(binary);
+            while((!(input = in.readUTF()).equals("end"))){
+                System.out.println("RECEIVER frame receive: " + input);
+                Frame frame = handleInput(input);
 
                 //evaluate wich type of frame we receive
                 switch (frame.getTypeInString()) {
@@ -89,6 +84,13 @@ public class Receiver extends Thread {
 
     // TODO : handleInput..
 
+    public Frame handleInput (String input) {
+        input = input.substring(8, input.length() - 8);    // without flags
+        String binFrame = DataManipulation.bitUnStuffing(input);    // remove bit stuffing
+
+        return new Frame(binFrame);
+
+    }
 
 
     public void closeConnection() {

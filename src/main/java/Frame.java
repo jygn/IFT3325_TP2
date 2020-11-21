@@ -1,7 +1,6 @@
 public class Frame {
 
     private static final String flag  = "01111110";
-
     private byte type;
     private byte num;
     private byte[] data;
@@ -15,6 +14,19 @@ public class Frame {
         this.num = (byte) num;
         this.data = data;
         this.CRC = computeCRC();
+
+    }
+
+    public Frame(String binFrame) {
+
+        this.type = DataManipulation.binToByte(binFrame.substring(0,8));
+        this.num = (byte) DataManipulation.binToInt(binFrame.substring(8,16));
+
+        //data
+        String dataString = binFrame.substring(16, binFrame.length()-16);
+        this.data = DataManipulation.binToBytes(dataString, dataString.length());
+
+        this.CRC = binFrame.substring(binFrame.length()-16);
 
     }
 
