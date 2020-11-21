@@ -92,7 +92,6 @@ public class Sender extends Thread{
 
                     //update window index
                     windowIndex++;
-                    lastAckToreceived = DataManipulation.binToInt(frameToSend.substring(8, 16));
                 }
 
                 //close the communication
@@ -101,7 +100,7 @@ public class Sender extends Thread{
                     out.writeUTF(fm.getFrameToSend(frameCloseConnection));
                     out.flush();
                     allFrameSent = true;
-                    lastAckToreceived = frameInput.getNum() + 1;
+                    lastAckToreceived = windowIndex % WINDOW_SIZE;
                     System.out.println("SENDER Sender done");
                 }
 
