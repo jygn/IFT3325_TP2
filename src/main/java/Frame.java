@@ -1,6 +1,7 @@
 public class Frame {
 
     private static final String flag  = "01111110";
+
     private byte type;
     private byte num;
     private byte[] data;
@@ -23,6 +24,18 @@ public class Frame {
 
     public void setNum(byte num) {
         this.num = num;
+    }
+
+    public byte getType() {
+        return type;
+    }
+
+    public void setType(byte type) {
+        this.type = type;
+    }
+
+    public String getTypeInString(){
+        return DataManipulation.byteToString(this.type);
     }
 
     public Frame(String flag1, byte type, int num, byte[] data, String CRC, String flag2) {

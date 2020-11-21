@@ -50,6 +50,23 @@ public class Receiver extends Thread {
 
                 Frame frame = fm.getFrame(binary);
 
+                //evaluate wich type of frame we receive
+                switch (frame.getTypeInString()) {
+                    case "I": //information
+                        //TODO
+                        break;
+                    case "C": // Connection request
+                        //TODO
+                        break;
+                    case "F": // end of communication
+                        //TODO
+                        break;
+                    case "P": //  P bit
+                        //TODO
+                        break;
+                    default:
+                        //TODO throw error??
+                }
 
 
 
