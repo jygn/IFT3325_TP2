@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class FramesManager {
 
-    private static final int data_size = 100;  // 1000 byte = 1Kb  // TODO data frame size ou frame size au complet?
+    private static final int data_size = 100;
     ArrayList<Frame> framesList;
     public ArrayList<String> binFrameList;
 
@@ -69,12 +69,9 @@ public class FramesManager {
 
     // TODO : handleInput..
 
-    public Frame handleInput (String input) {
+    public String handleInput (String input) {
         input = input.substring(8, input.length() - 8);    // without flags
-
-        String binFrame = DataManipulation.bitUnStuffing(input);    // remove bit stuffing
-
-        return new Frame(binFrame);
+        return DataManipulation.bitUnStuffing(input);    // remove bit stuffing
 
     }
 
@@ -84,7 +81,18 @@ public class FramesManager {
         return new Frame("A", (fm.getNum() + 1)% 7); //window size
     }
 
-
+    /**
+     * Vérifie si le frame reçue n'est pas erroné
+     * @param binFrame reçu sous format binaire (string)
+     * @return : boolean
+     */
+    public boolean containsError(String binFrame) {
+        boolean isWrong = false;
+        if (!Checksum.xor_div(binFrame).equals("0")) {
+            isWrong = true;
+        }
+        return isWrong;
+    }
 
     //Test
     public static void main(String args[]){

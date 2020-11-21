@@ -21,11 +21,14 @@ public class Checksum {
 
     public static String xor_div (String data) {
 
-        data = data.substring(zeroSeqCounter(data));    // trim les 0's au début
 
+        int r = POLYNOMIAL.length();
+        if (data.length() < r)
+            return data;
+
+        data = data.substring(zeroSeqCounter(data));    // trim les 0's au début
         int i = 0;
         String reminder = "";
-        int r = POLYNOMIAL.length();
         int n_zeros = 0;
 
         while (i < r) { // première division qui va donner un 1er reminder

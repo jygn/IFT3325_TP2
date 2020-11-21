@@ -63,7 +63,9 @@ public class Sender extends Thread{
 
             //wait for confirmation of the connection
             input = in.readUTF();
-            frameInput = fm.handleInput(input);
+            input = fm.handleInput(input);
+            frameInput = new Frame(input);
+
             int lastAckToreceived = 0;
 
             if(DataManipulation.byteToString(frameInput.getType()).equals("A") && frameInput.getNum() == 0){
@@ -106,9 +108,11 @@ public class Sender extends Thread{
 
                 //receive from the server
                 input = in.readUTF();
-                frameInput = fm.handleInput(input);
+                input = fm.handleInput(input);
+                frameInput = new Frame(input);
                 System.out.println("SENDER ack : " + frameInput.getNum());
 
+                String t = frameInput.getTypeInString();
                 switch (frameInput.getTypeInString()){
                     case "A":
                         //TODO
@@ -125,7 +129,7 @@ public class Sender extends Thread{
                         System.out.println("SENDER confirmation from receiver to close the connection");
                         break;
                     default:
-                        System.out.println("SENDER error in frame");
+//                        System.out.println("SENDER error in frame");
                 }
 
                 //all ack received

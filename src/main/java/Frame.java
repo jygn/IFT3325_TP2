@@ -44,7 +44,7 @@ public class Frame {
                 break;
 
             case "C":
-
+            case "F":
             case "A":
                 this.type = DataManipulation.binToByte(binFrame.substring(0, 8));
                 this.num = (byte) DataManipulation.binToInt(binFrame.substring(8, 16));
@@ -66,9 +66,7 @@ public class Frame {
         this.num = num;
     }
 
-    public byte getType() {
-        return type;
-    }
+    public byte getType() { return type; }
 
     private String getFrameTypeInString(byte bits){
         return DataManipulation.byteToString(bits);
@@ -117,18 +115,6 @@ public class Frame {
         return Checksum.calculCRC(t+n+d);
     }
 
-    /**
-     * Vérifie si le frame reçue n'est pas erroné
-     * @param data : frame reçu sous format binaire (string)
-     * @return : boolean
-     */
-    public boolean errorCheck(String data) {
-        boolean isWrong = false;
-        if (!Checksum.xor_div(data).equals("0")) {
-            isWrong = true;
-        }
-        return isWrong;
-    }
 
     public String getFlag() {
         return flag;

@@ -48,7 +48,14 @@ public class Receiver extends Thread {
             while(true){
                 input = in.readUTF();
                 System.out.println("RECEIVER frame receive: " + input);
-                frameInput = fm.handleInput(input);
+                input = fm.handleInput(input);
+
+                if (fm.containsError(input)) {
+                    System.out.println("This frame contains errors");
+                    // TODO : REJ
+                }
+
+                frameInput = new Frame(input);
 
                 //evaluate wich type of frame we receive
                 switch (frameInput.getTypeInString()) {
