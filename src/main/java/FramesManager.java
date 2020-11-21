@@ -50,34 +50,7 @@ public class FramesManager {
         return binFrameList;
     }
 
-    /**
-     * Return a Frame when get a binary String that represent a frame
-     * @param binFrame
-     * @return
-     */
-    public Frame getFrame(String binFrame){
 
-        //TODO unstuffing ?? 
-
-        //first get substring for different part
-        String flag1 = binFrame.substring(0,8);
-        String flag2 = binFrame.substring(binFrame.length() - 8);
-
-        binFrame = binFrame.substring(8, binFrame.length() - 8);    // without flags
-        binFrame = DataManipulation.bitUnStuffing(binFrame);    // remove bit stuffing
-
-        byte type = DataManipulation.binToByte(binFrame.substring(8,16));
-        int num = DataManipulation.binToInt(binFrame.substring(16,24));
-
-        //data
-        String dataString = binFrame.substring(24, binFrame.length() -8 );
-        int dataSize = dataString.length();
-        byte[] data = DataManipulation.binToBytes(dataString, dataSize);
-
-        String CRC = binFrame.substring(24, 40);
-
-        return new Frame(flag1, type, num, data, CRC, flag2);
-    }
 
     //Test
     public static void main(String args[]){
@@ -85,7 +58,7 @@ public class FramesManager {
 
         FramesManager fmTest = new FramesManager();
 
-        fmTest.getFrame(testBin);
+//        fmTest.getFrame(testBin);
 
 
     }

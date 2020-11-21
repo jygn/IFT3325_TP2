@@ -17,21 +17,25 @@ public class Frame {
 
     }
 
+    public Frame(String binFrame) {
+
+        this.type = DataManipulation.binToByte(binFrame.substring(0,8));
+        this.num = (byte) DataManipulation.binToInt(binFrame.substring(8,16));
+
+        //data
+        String dataString = binFrame.substring(16, binFrame.length()-16);
+        this.data = DataManipulation.binToBytes(dataString, dataString.length());
+
+        this.CRC = binFrame.substring(binFrame.length()-16);
+
+    }
+
     public byte getNum() {
         return num;
     }
 
     public void setNum(byte num) {
         this.num = num;
-    }
-
-    public Frame(String flag1, byte type, int num, byte[] data, String CRC, String flag2) {
-        this.flag1 = flag1;
-        this.type = type;
-        this.num = (byte) num;
-        this.data = data;
-        this.CRC = CRC;
-        this.flag2 = flag2;
     }
 
     /**
