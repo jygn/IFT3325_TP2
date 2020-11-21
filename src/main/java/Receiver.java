@@ -8,6 +8,7 @@ public class Receiver extends Thread {
     private DataInputStream in = null;
     private int port;
     private DataOutputStream out = null;
+    public static final int WINDOW_SIZE = 7;
 
     public Receiver(int port){
         this.port = port;
@@ -61,7 +62,7 @@ public class Receiver extends Thread {
                 switch (frameInput.getTypeInString()) {
                     case "I": //information
                         //ack is the number of the frame + 1
-                        frameOutput = fm.getFrameAck(frameInput);
+                        frameOutput = fm.getFrameAck(frameInput, WINDOW_SIZE);
                         break;
                     case "C": // Connection request
                         frameOutput = fm.getFrameConnectionConfirmation(frameInput);

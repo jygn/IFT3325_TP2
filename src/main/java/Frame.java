@@ -46,13 +46,15 @@ public class Frame {
             case "C":
             case "F":
             case "A":
+
+            case "F":
                 this.type = DataManipulation.binToByte(binFrame.substring(0, 8));
                 this.num = (byte) DataManipulation.binToInt(binFrame.substring(8, 16));
                 this.CRC = binFrame.substring(binFrame.length() - 16);
                 break;
 
             default:
-                System.out.println("error in frame");
+                System.out.println("FRAME error in frame");
         }
 
     }
