@@ -17,6 +17,15 @@ public class Sender extends Thread{
     private String fileName;
     private ArrayList<String> binFrameList;
 
+    int windowMin; // inferior limit of the window
+    int windowMax; //upper limit of the window
+    int windowIndex; // at where we are in the list
+    boolean allFrameSent;
+    boolean closeConfirmation;
+    String input, ack;
+    Frame frameInput;
+
+
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
 
     /**
@@ -28,6 +37,37 @@ public class Sender extends Thread{
         this.address = address;
         this.port = port;
         this.fileName = fileName;
+
+        windowMin = 0; // inferior limit of the window
+        windowMax = WINDOW_SIZE - 1; //upper limit of the window
+        windowIndex = 0; // at where we are in the list
+        allFrameSent = false;
+        closeConfirmation = false;
+    }
+
+    public void setupConnection() throws IOException {
+
+        Frame connectionFrame = new Frame('C', 0);
+        out.writeUTF(fm.getFrameToSend(connectionFrame));
+        out.flush();
+        System.out.println("SENDER connection frame sent");
+
+        //wait for confirmation of the connection
+        input = in.readUTF();
+        input = fm.handleInput(input);
+        frameInput = new Frame(input);
+
+        if(frameInput.getType() == 'A' && frameInput.getNum() == 0){
+            System.out.println("SENDER connection go-back-N established");
+        } else if (frameInput.getType() == 'F'){
+            this.closeConnection();
+            System.out.println("SENDER go-back-N connection NOT established");
+            System.exit(0);
+        } else {
+            System.out.println("SENDER error in establishing connection");
+            System.exit(0);
+        }
+
     }
 
     /**
@@ -41,42 +81,11 @@ public class Sender extends Thread{
         this.initFrames();
         System.out.println("SENDER frames ready to be sent");
 
-
-        int windowMin = 0; // inferior limit of the window
-        int windowMax = WINDOW_SIZE - 1; //upper limit of the window
-        int windowIndex = 0; // at where we are in the list
-        boolean allFrameSent = false;
-        boolean closeConfirmation = false;
-        String input, ack;
-        Frame frameInput;
-
         System.out.println("SENDER frame size: " + binFrameList.size());
 
         try {
 
-            //set up connection
-            Frame connectionFrame = new Frame('C', 0);
-            out.writeUTF(fm.getFrameToSend(connectionFrame));
-            out.flush();
-            System.out.println("SENDER connection frame sent");
-
-            //wait for confirmation of the connection
-            input = in.readUTF();
-            input = fm.handleInput(input);
-            frameInput = new Frame(input);
-
-            int lastAckToreceived = 0;
-
-            if(DataManipulation.byteToString(frameInput.getType()).equals("A") && frameInput.getNum() == 0){
-                System.out.println("SENDER connection go-back-N established");
-            } else if(DataManipulation.byteToString(frameInput.getType()).equals("F")){
-                this.closeConnection();
-                System.out.println("SENDER no go-back-N connection established");
-                System.exit(0);
-            } else {
-                System.out.println("SENDER error in establishing connection");
-                System.exit(0);
-            }
+            setupConnection();  // establish connection
 
             //start to send all the data
             while (true) {
@@ -137,7 +146,6 @@ public class Sender extends Thread{
 
             }
 
-            this.closeConnection();
         } catch (IOException u){
             System.out.println(u);
         }

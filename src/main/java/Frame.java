@@ -23,7 +23,7 @@ public class Frame {
     public Frame(char type, int num) {
 
         this.type = (byte) type;
-        this.num = (byte)num;
+        this.num = (byte) num;
         this.data = null;
         this.CRC = computeCRC();
     }
@@ -96,7 +96,7 @@ public class Frame {
         String t = DataManipulation.bitsPadding(Integer.toBinaryString(this.type));
         String n = DataManipulation.bitsPadding(Integer.toBinaryString(this.num));
 
-        if(this.data == null) return t+n; //some frame doesnt have data
+        if(this.data == null) return t+n+this.CRC; //some frame doesnt have data
         String d = DataManipulation.bytesToBin(this.data);
 
         return t+n+d+this.CRC;

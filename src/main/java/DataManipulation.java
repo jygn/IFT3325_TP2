@@ -109,6 +109,35 @@ public class DataManipulation {
         return b[0];
     }
 
+    /**
+     * Split un tableau de bytes en un tableau de tableau de bytes
+     * @param data : tableau de bytes
+     * @param split_size : taille de chaque sous tableau
+     * @return : tableau de tableau de bytes
+     */
+    public static byte[][] splitBytes (byte[] data, int split_size) {
+
+        int n = (int) Math.ceil((double) data.length / split_size); // nb de chunk
+
+        byte[][] data_chunks = new byte[n][];
+        byte[] data_chunk;
+        int src_pos = 0;
+
+        for (int i = 0; i < n; i++) {
+            data_chunk = new byte[split_size];
+
+            if (data.length - (i * split_size) < split_size) {  // last chunk
+                data_chunk = new byte[data.length - (i * split_size)];
+                System.arraycopy(data, src_pos, data_chunk, 0, data.length - (i * split_size));
+            } else {
+                System.arraycopy(data, src_pos, data_chunk, 0, split_size);
+            }
+
+            data_chunks[i] = data_chunk;
+            src_pos += split_size;
+        }
+        return data_chunks;
+    }
 
     public static void main(String args[]){
 

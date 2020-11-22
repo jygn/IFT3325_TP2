@@ -45,49 +45,27 @@ public class Receiver extends Thread {
             int ack;
 
             //read from sender
-            receiver:
             while(true){
+
                 input = in.readUTF();
                 System.out.println("RECEIVER frame receive: " + input);
+
                 input = fm.handleInput(input);
+                frameInput = new Frame(input);
 
                 if (fm.containsError(input)) {
                     System.out.println("frame contains error");
-                    // TODO : REJ
-                }
-
-                frameInput = new Frame(input);
-
-                //evaluate wich type of frame we receive
-                switch (frameInput.getType()) {
-                    case 'I': // information
-                        //ack is the number of the frame + 1
-                        frameOutput = fm.getFrameAck(frameInput, WINDOW_SIZE);
-                        break;
-                    case 'C': // Connection request
-                        frameOutput = fm.getFrameConnectionConfirmation(frameInput);
-                        break;
-                    case 'F': // end of communication
-                        frameOutput = new Frame('F', 0);
-                        allFrameReceived = true;
-                    case 'P': //  P bit
-                        //TODO
-                        break;
-                    default:
-                        //TODO throw error??
+                    frameOutput = fm.getREJ(frameInput.getNum());
+                } else {
+                    frameOutput = fm.getFrameByType(frameInput, WINDOW_SIZE);
                 }
 
                 //send
-                if(frameOutput != null){
-                    out.writeUTF(fm.getFrameToSend(frameOutput));
-                    out.flush();
-                    System.out.println("RECEIVER response sent");
-                } else {
-                    //TODO throw error?
-                    System.out.println("RECEIVER error frameOuput is null");
-                }
+                out.writeUTF(fm.getFrameToSend(frameOutput));
+                out.flush();
+                System.out.println("RECEIVER response sent");
 
-                if(allFrameReceived) break;
+                if(frameOutput.getType() == 'F') break;
 
             }
 

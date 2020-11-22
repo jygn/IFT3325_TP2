@@ -6,44 +6,30 @@ import java.util.ArrayList;
 
 public class FramesManager {
 
-    private static final int data_size = 100;
+    private static final int max_size = 100;
     ArrayList<Frame> framesList;
-    public ArrayList<String> binFrameList;
+    private ArrayList<String> binFrameList;
 
     public void createFramesList(byte[] data, int windowSize){
         framesList = new ArrayList<>();
 
         byte type;
         int num;
-        Frame frame;
+        // split les données selon la taille maximale
+        byte[][] data_chunks = DataManipulation.splitBytes(data, max_size);
 
-        int n = (int) Math.ceil((double) data.length / data_size); // nb de frames
-        byte[] data_chunk;
-        int src_pos = 0;
-
-        for (int i = 0; i < n; i++) {
-            type = 'I'; // test
+        for (int i = 0; i < data_chunks.length; i++) {
+            type = 'I';
             num = i % windowSize;
-
-            data_chunk = new byte[data_size];
-
-            if (data.length - (i * data_size) < data_size) {// last data chunk
-                data_chunk = new byte[data.length - (i * data_size)];
-                System.arraycopy(data, src_pos, data_chunk, 0, data.length - (i * data_size));
-            } else {
-                System.arraycopy(data, src_pos, data_chunk, 0, data_size);
-            }
-
-            framesList.add(new Frame(type, num, data_chunk));
-            src_pos += data_size;
-
+            framesList.add(new Frame(type, num, data_chunks[i]));
             binFrameList = new ArrayList<>();
 
-            //add flag and convert frames to binary
+            // add flag and convert frames to binary
             for (Frame f : framesList) {
                 binFrameList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
             }
         }
+
     }
 
     public ArrayList<String> getBinFrameList() {
@@ -67,12 +53,29 @@ public class FramesManager {
         }
     }
 
-    // TODO : handleInput..
+    public Frame getFrameByType (Frame frame, int window_size) {
+
+        switch (frame.getType()) {
+            case 'I': // information
+                //ack is the number of the frame + 1
+                return getFrameAck(frame, window_size);
+            case 'C': // Connection request
+                return getFrameConnectionConfirmation(frame);
+            case 'F': // end of communication
+                return new Frame('F', 0);
+//            case 'P': //  P bit
+//                //TODO
+//                break;
+            default:
+                return getREJ(frame.getNum());   // TODO changer??
+        }
+    }
+
+
 
     public String handleInput (String input) {
         input = input.substring(8, input.length() - 8);    // without flags
         return DataManipulation.bitUnStuffing(input);    // remove bit stuffing
-
     }
 
     public Frame getFrameAck(Frame fm, int windowSize) {
@@ -81,7 +84,9 @@ public class FramesManager {
         return new Frame('A', (fm.getNum() + 1)% windowSize); //window size
     }
 
-//    public Frame getREJ()
+    public Frame getREJ(int num) {
+        return new Frame('R', num); // TODO: bien retourner le num du frame avec erreur?
+    }
 
     /**
      * Vérifie si le frame reçue n'est pas erroné
