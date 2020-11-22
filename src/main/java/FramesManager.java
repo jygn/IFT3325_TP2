@@ -81,6 +81,8 @@ public class FramesManager {
         return new Frame('A', (fm.getNum() + 1)% windowSize); //window size
     }
 
+//    public Frame getREJ()
+
     /**
      * Vérifie si le frame reçue n'est pas erroné
      * @param binFrame reçu sous format binaire (string)

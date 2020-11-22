@@ -52,7 +52,7 @@ public class Receiver extends Thread {
                 input = fm.handleInput(input);
 
                 if (fm.containsError(input)) {
-                    System.out.println("This frame contains errors");
+                    System.out.println("frame contains error");
                     // TODO : REJ
                 }
 
@@ -60,7 +60,7 @@ public class Receiver extends Thread {
 
                 //evaluate wich type of frame we receive
                 switch (frameInput.getType()) {
-                    case 'I': //information
+                    case 'I': // information
                         //ack is the number of the frame + 1
                         frameOutput = fm.getFrameAck(frameInput, WINDOW_SIZE);
                         break;
@@ -99,8 +99,6 @@ public class Receiver extends Thread {
 
     }
 
-
-
     public void closeConnection() {
         try{
             in.close();
@@ -113,7 +111,4 @@ public class Receiver extends Thread {
         }
     }
 
-    public static void main(String args[]){
-//        Receiver receiver = new Receiver(Integer.parseInt(args[0]));
-    }
 }
