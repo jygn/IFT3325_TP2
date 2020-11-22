@@ -15,7 +15,7 @@ public class FramesManager {
 
         byte type;
         int num;
-        // split les données selon la taille maximale
+        // split les données en morceaux de bytes selon la taille maximale
         byte[][] data_chunks = DataManipulation.splitBytes(data, max_size);
 
         for (int i = 0; i < data_chunks.length; i++) {
