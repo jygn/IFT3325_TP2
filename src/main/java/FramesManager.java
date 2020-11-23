@@ -40,10 +40,10 @@ public class FramesManager {
         return fm.getFlag() + fm.toBin() + fm.getFlag();
     }
 
-    public Frame getFrameConnectionConfirmation(Frame fm) {
+    public Frame getFrameConnectionConfirmation(int frame_num) {
 
         // go-back-N request
-        if(fm.getNum() == 0){
+        if(frame_num == 0){
             //send RR0 -> is waiting for the first frame
             return new Frame('A',0);
 
@@ -53,21 +53,21 @@ public class FramesManager {
         }
     }
 
-    public Frame getFrameByType (Frame frame, int window_size) {
+    public Frame getFrameByType (byte type, int frame_num) {
 
-        switch (frame.getType()) {
+        switch (type) {
             case 'I': // information
                 //ack is the number of the frame + 1
-                return getFrameAck(frame, window_size);
+                return getFrameAck(frame_num);
             case 'C': // Connection request
-                return getFrameConnectionConfirmation(frame);
+                return getFrameConnectionConfirmation(frame_num);
             case 'F': // end of communication
                 return new Frame('F', 0);
 //            case 'P': //  P bit
 //                //TODO
 //                break;
             default:
-                return getREJ(frame.getNum());   // TODO changer??
+                return getREJ(frame_num);   // TODO changer??
         }
     }
 
@@ -78,10 +78,10 @@ public class FramesManager {
         return DataManipulation.bitUnStuffing(input);    // remove bit stuffing
     }
 
-    public Frame getFrameAck(Frame fm, int windowSize) {
+    public Frame getFrameAck(int frame_num) {
 
         //send aknowledgement
-        return new Frame('A', (fm.getNum() + 1)% windowSize); //window size
+        return new Frame('A', frame_num); //window size
     }
 
     public Frame getREJ(int num) {

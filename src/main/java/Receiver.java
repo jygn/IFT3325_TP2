@@ -9,6 +9,7 @@ public class Receiver extends Thread {
     private int port;
     private DataOutputStream out = null;
     public static final int WINDOW_SIZE = 7;
+    private int frame_num;
 
     public Receiver(int port){
         this.port = port;
@@ -38,7 +39,7 @@ public class Receiver extends Thread {
         FramesManager fm = new FramesManager();
         Frame frameInput;
         Frame frameOutput = null;
-        boolean allFrameReceived = false;
+        frame_num = 0;
 
         try{
             String input = "";
@@ -55,9 +56,10 @@ public class Receiver extends Thread {
 
                 if (fm.containsError(input)) {
                     System.out.println("frame contains error");
-                    frameOutput = fm.getREJ(frameInput.getNum());
+                    frameOutput = fm.getREJ(frame_num);
                 } else {
-                    frameOutput = fm.getFrameByType(frameInput, WINDOW_SIZE);
+                    frameOutput = fm.getFrameByType(frameInput.getType(), frame_num);
+                    frame_num = (frame_num+1) % 8;  // numero du frame
                 }
 
                 //send
