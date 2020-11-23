@@ -148,6 +148,10 @@ public class Sender extends Thread{
                 windowMax = windowMin + (WINDOW_SIZE - 1);
                 System.out.println("SENDER windowMax: " + windowMax);
                 break;
+            case 'R':
+                int REJnum = frameInput.getNum();   // num of the error frame
+                // TODO retransmettre tous les frames depuis celui avec erreur
+                break;
             case 'F':
                 //TODO
                 closeConfirmation = true;
