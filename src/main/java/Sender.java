@@ -117,26 +117,9 @@ public class Sender extends Thread{
                 input = in.readUTF();
                 input = fm.handleInput(input);
                 frameInput = new Frame(input);
-                System.out.println("SENDER ack : " + frameInput.getNum());
 
-                switch (frameInput.getType()){
-                    case 'A':
-                        //TODO
-                        //update the window
-                        windowMin = newWindowMin(windowMin, frameInput.getNum()); //shift the limit inferior of the window (
-                        System.out.println("SENDER windowMin: " + windowMin);
-
-                        windowMax = windowMin + (WINDOW_SIZE - 1);
-                        System.out.println("SENDER windowMax: " + windowMax);
-                        break;
-                    case 'F':
-                        //TODO
-                        closeConfirmation = true;
-                        System.out.println("SENDER confirmation from receiver to close the connection");
-                        break;
-                    default:
-//                        System.out.println("SENDER error in frame");
-                }
+                // do an action according to the input
+                handleResponse(frameInput);
 
                 //close connection from server received
                 if(closeConfirmation) {
@@ -150,6 +133,29 @@ public class Sender extends Thread{
             System.out.println(u);
         }
 
+    }
+
+    public void handleResponse(Frame frameInput) {
+
+        System.out.println("SENDER ack : " + frameInput.getNum());
+        switch (frameInput.getType()){
+            case 'A':
+                //TODO
+                //update the window
+                windowMin = newWindowMin(windowMin, frameInput.getNum()); //shift the limit inferior of the window (
+                System.out.println("SENDER windowMin: " + windowMin);
+
+                windowMax = windowMin + (WINDOW_SIZE - 1);
+                System.out.println("SENDER windowMax: " + windowMax);
+                break;
+            case 'F':
+                //TODO
+                closeConfirmation = true;
+                System.out.println("SENDER confirmation from receiver to close the connection");
+                break;
+            default:
+//                        System.out.println("SENDER error in frame");
+        }
     }
 
     /**
