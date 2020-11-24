@@ -54,8 +54,6 @@ public class Receiver extends Thread {
                 input = fm.frameExtract(input);
                 frameInput = new Frame(input);
 
-
-
                 if (fm.containsError(input)) {          // TODO : vérifier si frameInput.getNum() == frame_num
                     System.out.println("frame contains error");
                     frameOutput = fm.getREJ(frame_num);
@@ -63,9 +61,10 @@ public class Receiver extends Thread {
                         continue;
                 } else {
                     frameOutput = fm.getFrameByType(frameInput.getType(), frameInput.getNum());
-                    if(frameInput.getType() == 'I');
-                    System.out.println("RECEIVER number receive : " + frameInput.getNum() + " VS num expected : " + frame_num);
-                    frame_num = (frame_num+1) % WINDOW_SIZE;  // numero du frame
+                    if(frameInput.getType() == 'I') {
+                        System.out.println("RECEIVER number receive : " + frameInput.getNum() + " VS num expected : " + frame_num);
+                        frame_num = (frame_num + 1) % WINDOW_SIZE;  // numero du frame
+                    }
                 }
 
                 //send
