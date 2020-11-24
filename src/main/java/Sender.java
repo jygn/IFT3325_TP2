@@ -27,7 +27,7 @@ public class Sender extends Thread{
 
 
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
-    public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
+    public static final int TIME_OUT_INTERVAL = 20; // 3 seconds time out in go-back-N
 
     /**
      * Constructor
@@ -46,27 +46,33 @@ public class Sender extends Thread{
         closeConfirmation = false;
     }
 
-    public void setupConnection() throws IOException {
+    public void setupConnection() {
 
-        Frame connectionFrame = new Frame('C', 0);
-        out.writeUTF(fm.getFrameToSend(connectionFrame));
-        out.flush();
-        System.out.println("SENDER connection frame sent");
+        try {
+            Frame connectionFrame = new Frame('C', 0);
+            out.writeUTF(fm.getFrameToSend(connectionFrame));
+            out.flush();
+            System.out.println("SENDER connection frame sent");
 
-        //wait for confirmation of the connection
-        input = in.readUTF();
-        input = fm.frameExtract(input);
-        frameInput = new Frame(input);
+            //wait for confirmation of the connection
+            input = in.readUTF();
+            input = fm.frameExtract(input);
+            frameInput = new Frame(input);
 
-        if(frameInput.getType() == 'A' && frameInput.getNum() == 0){
-            System.out.println("SENDER connection go-back-N established");
-        } else if (frameInput.getType() == 'F'){
-            this.closeConnection();
-            System.out.println("SENDER go-back-N connection NOT established");
-            System.exit(0);
-        } else {
-            System.out.println("SENDER error in establishing connection");
-            System.exit(0);
+            if(frameInput.getType() == 'A' && frameInput.getNum() == 0){
+                System.out.println("SENDER connection go-back-N established");
+            } else if (frameInput.getType() == 'F'){
+                this.closeConnection();
+                System.out.println("SENDER go-back-N connection NOT established");
+                System.exit(0);
+            } else {
+                System.out.println("SENDER error in establishing connection");
+                System.exit(0);
+            }
+            //set up time out exception after 3 seconds
+            socket.setSoTimeout(TIME_OUT_INTERVAL*1000);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
@@ -83,45 +89,51 @@ public class Sender extends Thread{
         System.out.println("SENDER frames ready to be sent");
         System.out.println("SENDER frame size: " + binFrameList.size());
 
-        try {
+        setupConnection();  // establish connection
 
-            setupConnection();  // establish connection
-            //set up time out exception after 3 seconds
-            socket.setSoTimeout(TIME_OUT_INTERVAL*1000);
+        //start to send all the data
+        while (true) {
 
-            //start to send all the data
-            while (true) {
+            while (windowIndex <= windowMax && !allFrameSent) { //TODO doit verifier que window est plus grand que nombre de frame
 
-                while (windowIndex <= windowMax && !allFrameSent) { //TODO doit verifier que window est plus grand que nombre de frame
+                System.out.println("SENDER windowindex: " + windowIndex);
+                //check if all frame are sent
+                if(windowIndex >= binFrameList.size()){
+                    allFrameSent = true;
+                    break;
+                }
 
-                    //check if all frame are sent
-                    if(windowIndex >= binFrameList.size()){
-                        allFrameSent = true;
-                        break;
-                    }
+                //add number of the frame
+                String frameToSend = binFrameList.get(windowIndex);
 
-                    //add number of the frame
-                    String frameToSend = binFrameList.get(windowIndex);
-
-                    //sent a frame
+                //sent a frame
+                try {
                     out.writeUTF(frameToSend);
                     out.flush();
                     System.out.println("SENDER frame sent : " + frameToSend);
-
-                    //update window index
-                    windowIndex++;
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                //update window index
+                windowIndex++;
+                if(windowIndex == 10) windowIndex++;
+            }
 
-                //close the communication
-                if(allFrameSent) {
-                    Frame frameCloseConnection = new Frame('F', 0);
+            //close the communication
+            if(allFrameSent) {
+                Frame frameCloseConnection = new Frame('F', 0);
+                try {
                     out.writeUTF(fm.getFrameToSend(frameCloseConnection));
                     out.flush();
                     allFrameSent = true;
                     System.out.println("SENDER Sender done");
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
 
-                //receive from the server
+            //receive from the server
+            try {
                 input = in.readUTF();
                 input = fm.frameExtract(input);
                 frameInput = new Frame(input);
@@ -129,18 +141,25 @@ public class Sender extends Thread{
                 // do an action according to the input
                 handleResponse(frameInput);
 
-                //close connection from server received
-                if(closeConfirmation) {
-                    this.closeConnection();
-                    break;
-                }
-
+            } catch (SocketTimeoutException e) {
+                System.out.println("SENDER TIMEOUT EXCEPTION");
+                handleTimeOut();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-        } catch (IOException u){
-            System.out.println(u);
+            //close connection from server received
+            if(closeConfirmation) {
+                this.closeConnection();
+                break;
+            }
+
         }
 
+    }
+
+    public void handleTimeOut(){
+        windowIndex = windowMin;
     }
 
     public void handleResponse(Frame frameInput) {
