@@ -54,11 +54,11 @@ public class Receiver extends Thread {
                 input = fm.handleInput(input);
                 frameInput = new Frame(input);
 
-                if (fm.containsError(input)) {
+                if (fm.containsError(input)) {          // TODO : vérifier si frameInput.getNum() == frame_num
                     System.out.println("frame contains error");
                     frameOutput = fm.getREJ(frame_num);
                 } else {
-                    frameOutput = fm.getFrameByType(frameInput.getType(), frame_num);
+                    frameOutput = fm.getFrameByType(frameInput.getType(), frameInput.getNum());
                     frame_num = (frame_num+1) % 8;  // numero du frame
                 }
 
