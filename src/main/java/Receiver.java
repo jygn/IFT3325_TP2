@@ -57,6 +57,8 @@ public class Receiver extends Thread {
                 if (fm.containsError(input)) {          // TODO : vérifier si frameInput.getNum() == frame_num
                     System.out.println("frame contains error");
                     frameOutput = fm.getREJ(frame_num);
+                } else if(frameInput.getNum() != frame_num){
+                        continue;
                 } else {
                     frameOutput = fm.getFrameByType(frameInput.getType(), frameInput.getNum());
                     frame_num = (frame_num+1) % WINDOW_SIZE;  // numero du frame
