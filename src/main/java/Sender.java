@@ -22,6 +22,7 @@ public class Sender extends Thread{
     int windowIndex; // at where we are in the list
     boolean allFrameSent;
     boolean closeConfirmation;
+    boolean closeConnectionFrameSent;
     String input, ack;
     Frame frameInput;
 
@@ -44,6 +45,8 @@ public class Sender extends Thread{
         windowIndex = 0; // at where we are in the list
         allFrameSent = false;
         closeConfirmation = false;
+        closeConnectionFrameSent = false;
+
     }
 
     public void setupConnection() {
@@ -127,11 +130,12 @@ public class Sender extends Thread{
             }
 
             //close the communication
-            if(allFrameSent) {
+            if(allFrameSent && !closeConnectionFrameSent) {
                 Frame frameCloseConnection = new Frame('F', 0);
                 try {
                     out.writeUTF(fm.getFrameToSend(frameCloseConnection));
                     out.flush();
+                    closeConnectionFrameSent = true;
                     System.out.println("SENDER Sender done");
                 } catch (IOException e) {
                     e.printStackTrace();
