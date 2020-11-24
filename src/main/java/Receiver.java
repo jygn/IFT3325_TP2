@@ -59,7 +59,7 @@ public class Receiver extends Thread {
                     frameOutput = fm.getREJ(frame_num);
                 } else {
                     frameOutput = fm.getFrameByType(frameInput.getType(), frameInput.getNum());
-                    frame_num = (frame_num+1) % 8;  // numero du frame
+                    frame_num = (frame_num+1) % WINDOW_SIZE;  // numero du frame
                 }
 
                 //send
