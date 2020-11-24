@@ -27,7 +27,7 @@ public class Sender extends Thread{
 
 
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
-    public static final int TIME_OUT_INTERVAL = 20; // 3 seconds time out in go-back-N
+    public static final int TIME_OUT_INTERVAL = 5; // 3 seconds time out in go-back-N
 
     /**
      * Constructor
@@ -92,6 +92,8 @@ public class Sender extends Thread{
         setupConnection();  // establish connection
 
         //start to send all the data
+        //to test error of time out
+        boolean timeOutError = true;
         while (true) {
 
             while (windowIndex <= windowMax && !allFrameSent) { //TODO doit verifier que window est plus grand que nombre de frame
@@ -116,7 +118,12 @@ public class Sender extends Thread{
                 }
                 //update window index
                 windowIndex++;
-                if(windowIndex == 10) windowIndex++;
+
+                //test time out error
+                if(windowIndex == 10 && timeOutError) {
+                    windowIndex++;
+                    timeOutError = false;
+                }
             }
 
             //close the communication
@@ -125,7 +132,6 @@ public class Sender extends Thread{
                 try {
                     out.writeUTF(fm.getFrameToSend(frameCloseConnection));
                     out.flush();
-                    allFrameSent = true;
                     System.out.println("SENDER Sender done");
                 } catch (IOException e) {
                     e.printStackTrace();
