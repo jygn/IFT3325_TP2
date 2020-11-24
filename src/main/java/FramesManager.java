@@ -29,7 +29,6 @@ public class FramesManager {
                 binFrameList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
             }
         }
-
     }
 
     public ArrayList<String> getBinFrameList() {
