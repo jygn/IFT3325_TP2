@@ -11,6 +11,7 @@ public class Sender extends Thread{
     private String address = "";
     private int port;
     private Socket socket = null;
+    private int connectionType;
     private DataInputStream in = null;
     private DataOutputStream out = null;
     private FramesManager fm;
@@ -28,17 +29,18 @@ public class Sender extends Thread{
 
 
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
-    public static final int TIME_OUT_INTERVAL = 5; // 3 seconds time out in go-back-N
+    public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
     /**
      * Constructor
      * @param address address IP of the receiver
      * @param port port to communcate with the receiver
      */
-    public Sender(String address, int port, String fileName){
+    public Sender(String address, int port, String fileName, int connectionType){
         this.address = address;
         this.port = port;
         this.fileName = fileName;
+        this.connectionType = connectionType;
 
         windowMin = 0; // inferior limit of the window
         windowMax = WINDOW_SIZE - 1; //upper limit of the window
@@ -52,7 +54,7 @@ public class Sender extends Thread{
     public void setupConnection() {
 
         try {
-            Frame connectionFrame = new Frame('C', 0);
+            Frame connectionFrame = new Frame('C', connectionType);
             out.writeUTF(fm.getFrameToSend(connectionFrame));
             out.flush();
             System.out.println("SENDER connection frame sent");
