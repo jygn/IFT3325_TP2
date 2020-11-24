@@ -54,7 +54,7 @@ public class Sender extends Thread{
 
         //wait for confirmation of the connection
         input = in.readUTF();
-        input = fm.handleInput(input);
+        input = fm.frameExtract(input);
         frameInput = new Frame(input);
 
         if(frameInput.getType() == 'A' && frameInput.getNum() == 0){
@@ -115,7 +115,7 @@ public class Sender extends Thread{
 
                 //receive from the server
                 input = in.readUTF();
-                input = fm.handleInput(input);
+                input = fm.frameExtract(input);
                 frameInput = new Frame(input);
 
                 // do an action according to the input
