@@ -27,6 +27,7 @@ public class Sender extends Thread{
 
 
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
+    public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
     /**
      * Constructor
@@ -80,17 +81,24 @@ public class Sender extends Thread{
         //create frames
         this.initFrames();
         System.out.println("SENDER frames ready to be sent");
-
         System.out.println("SENDER frame size: " + binFrameList.size());
 
         try {
 
             setupConnection();  // establish connection
+            //set up time out exception after 3 seconds
+            socket.setSoTimeout(TIME_OUT_INTERVAL*1000);
 
             //start to send all the data
             while (true) {
 
-                while (windowIndex <= windowMax && !allFrameSent ) { //TODO doit verifier que window est plus grand que nombre de frame
+                while (windowIndex <= windowMax && !allFrameSent) { //TODO doit verifier que window est plus grand que nombre de frame
+
+                    //check if all frame are sent
+                    if(windowIndex >= binFrameList.size()){
+                        allFrameSent = true;
+                        break;
+                    }
 
                     //add number of the frame
                     String frameToSend = binFrameList.get(windowIndex);
@@ -105,7 +113,7 @@ public class Sender extends Thread{
                 }
 
                 //close the communication
-                if(windowIndex >= binFrameList.size() && !allFrameSent) {
+                if(allFrameSent) {
                     Frame frameCloseConnection = new Frame('F', 0);
                     out.writeUTF(fm.getFrameToSend(frameCloseConnection));
                     out.flush();
