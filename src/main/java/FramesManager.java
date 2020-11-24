@@ -61,6 +61,7 @@ public class FramesManager {
             case 'C': // Connection request
                 return getFrameConnectionConfirmation(frame_num);
             case 'F': // end of communication
+                System.out.println("RECEIVER confirm close connection");
                 return new Frame('F', 0);
 //            case 'P': //  P bit
 //                //TODO
