@@ -51,7 +51,7 @@ public class Receiver extends Thread {
                 input = in.readUTF();
                 System.out.println("RECEIVER frame receive: " + input);
 
-                input = fm.handleInput(input);
+                input = fm.frameExtract(input);
                 frameInput = new Frame(input);
 
                 if (fm.containsError(input)) {          // TODO : vérifier si frameInput.getNum() == frame_num

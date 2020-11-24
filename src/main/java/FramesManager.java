@@ -73,7 +73,7 @@ public class FramesManager {
 
 
 
-    public String handleInput (String input) {
+    public String frameExtract (String input) {
         input = input.substring(8, input.length() - 8);    // without flags
         return DataManipulation.bitUnStuffing(input);    // remove bit stuffing
     }
