@@ -104,6 +104,16 @@ public class DataManipulation {
         return seq;
     }
 
+    public static String bitFlip (String bitSeq, int index) {
+        char bit = bitSeq.charAt(index);
+        if (bit == '0')
+            bit = '1';
+        else
+            bit = '0';
+
+        return bitSeq.substring(0, index) + bit + bitSeq.substring(index+1);
+    }
+
     public static byte stringTobyte (String data){
         byte[] b = data.getBytes();
         return b[0];
