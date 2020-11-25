@@ -3,6 +3,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Sender extends Thread{
@@ -16,6 +17,8 @@ public class Sender extends Thread{
     private FramesManager fm;
     private String fileName;
     private ArrayList<String> binFrameList;
+    private boolean BIT_FLIP = true;
+    private Random random;
 
     int windowMin; // inferior limit of the window
     int windowMax; //upper limit of the window
@@ -113,11 +116,18 @@ public class Sender extends Thread{
                     frameToSend = binFrameList.get(windowIndex);
                 }
 
+                if (BIT_FLIP) { // bit flip error simulation
+                    frameToSend = generateBitFlipError(frameToSend);
+                    BIT_FLIP = false;
+                }
+
+
+
                 // send frame
                 try {
                     out.writeUTF(frameToSend);
                     out.flush();
-                    System.out.println("SENDER frame sent : " + frameToSend);
+//                    System.out.println("SENDER frame sent : " + frameToSend);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -182,6 +192,7 @@ public class Sender extends Thread{
             case 'R':
                 windowIndex = windowMin;    // frames retransmission
                 windowMax = windowMin + WINDOW_SIZE-1;
+                System.out.println("Retransmission des frames à partir du #" + windowIndex);
                 break;
             case 'F':
                 //TODO
@@ -191,6 +202,14 @@ public class Sender extends Thread{
             default:
 //                        System.out.println("SENDER error in frame");
         }
+    }
+
+    public String generateBitFlipError(String binFrame) {
+        random = new Random();
+        System.out.println("SIMULATEUR D'ERREUR (FLIPBIT) : au 1er frame envoyée");
+        int max_bit_index = binFrame.length()-(8 + 16); // w/o flag and CRC
+        int ran_bit_index = random.nextInt(max_bit_index - 8) + 8;  // w/o flag
+        return DataManipulation.bitFlip(binFrame, ran_bit_index);   // flip a random bit
     }
 
     /**

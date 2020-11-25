@@ -49,19 +49,19 @@ public class Receiver extends Thread {
             while(true){
 
                 input = in.readUTF();
-                System.out.println("RECEIVER frame receive: " + input);
+//                System.out.println("RECEIVER frame receive: " + input);
                 input = fm.frameExtract(input);
                 frameInput = new Frame(input);
 
                 if (fm.containsError(input)) {          // TODO : vérifier si frameInput.getNum() == frame_num
-                    System.out.println("frame contains error");
+                    System.out.println("RECEIVER frame #" + frame_num +  " contains error");
                     frameOutput = fm.getREJ(frame_num);
                 } else if(frameInput.getNum() != frame_num && frameInput.getType() == 'I'){
                         continue;
                 } else {
                     frameOutput = fm.getFrameByType(frameInput.getType(), frameInput.getNum());
                     if(frameInput.getType() == 'I') {
-                        System.out.println("RECEIVER number receive : " + frameInput.getNum() + " VS num expected : " + frame_num);
+//                        System.out.println("RECEIVER number receive : " + frameInput.getNum() + " VS num expected : " + frame_num);
                         frame_num = (frame_num + 1) % WINDOW_SIZE;
                     }// numero du frame
                 }
@@ -69,7 +69,7 @@ public class Receiver extends Thread {
                 //send
                 out.writeUTF(fm.getFrameToSend(frameOutput));
                 out.flush();
-                System.out.println("RECEIVER response sent");
+//                System.out.println("RECEIVER response sent");
 
                 if(frameOutput.getType() == 'F') break;
 

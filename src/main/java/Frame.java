@@ -44,6 +44,7 @@ public class Frame {
                 break;
             case 'C':
             case 'A':
+            case 'R':
             case 'F':
                 this.type = type;
                 this.num = (byte) DataManipulation.binToInt(binFrame.substring(8, 16));
@@ -51,7 +52,7 @@ public class Frame {
                 break;
 
             default:
-                System.out.println("FRAME error in frame");
+//                System.out.println("FRAME error in frame");
         }
 
     }
