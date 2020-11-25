@@ -116,7 +116,7 @@ public class Sender extends Thread{
                     frameToSend = binFrameList.get(windowIndex);
                 }
 
-                if (BIT_FLIP) { // bit flip error simulation
+                if (BIT_FLIP & windowIndex==13) { // bit flip error simulation
                     frameToSend = generateBitFlipError(frameToSend);
                     BIT_FLIP = false;
                 }
