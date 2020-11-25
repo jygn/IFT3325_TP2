@@ -31,7 +31,7 @@ public class GoBackN {
                     "> 1. Normal communication (no error) \n" +
                     "> 2. Transmission lost (time out) \n" +
                     "> 3. Transmission error (bit flip) \n" +
-                    "> 4. Tranmission lost and Transmission error ");
+                    "> 4. Transmission lost and Transmission error ");
 
             System.out.print("> ");
 
@@ -98,15 +98,14 @@ public class GoBackN {
                 }
             }
 
-//            receiver.join();
-//            System.out.println("RECEIVER thread ends");
-//            sender.join();
-//            System.out.println("SENDER thread ends");
-            //Sender 124.0.0.1 5000 src/test/text/test.txt 0
+            sender.join();
+            receiver.join();
 
         }
 
     }
 
 }
+
+// Sender 127.0.0.1 5000 src/test/text/test.txt 0
 
