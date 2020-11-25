@@ -21,7 +21,6 @@ public class Checksum {
 
     public static String xor_div (String data) {
 
-
         int r = POLYNOMIAL.length();
         if (data.length() < r)
             return data;

@@ -10,6 +10,7 @@ public class Sender extends Thread{
     private String address = "";
     private int port;
     private Socket socket = null;
+    private int connectionType;
     private DataInputStream in = null;
     private DataOutputStream out = null;
     private FramesManager fm;
@@ -24,20 +25,22 @@ public class Sender extends Thread{
     boolean closeConnectionFrameSent;
     String input, ack;
     Frame frameInput;
+    private String frameToSend;
 
 
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
-    public static final int TIME_OUT_INTERVAL = 5; // 3 seconds time out in go-back-N
+    public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
     /**
      * Constructor
      * @param address address IP of the receiver
      * @param port port to communcate with the receiver
      */
-    public Sender(String address, int port, String fileName){
+    public Sender(String address, int port, String fileName, int connectionType){
         this.address = address;
         this.port = port;
         this.fileName = fileName;
+        this.connectionType = connectionType;
 
         windowMin = 0; // inferior limit of the window
         windowMax = WINDOW_SIZE - 1; //upper limit of the window
@@ -51,7 +54,7 @@ public class Sender extends Thread{
     public void setupConnection() {
 
         try {
-            Frame connectionFrame = new Frame('C', 0);
+            Frame connectionFrame = new Frame('C', connectionType);
             out.writeUTF(fm.getFrameToSend(connectionFrame));
             out.flush();
             System.out.println("SENDER connection frame sent");
@@ -95,7 +98,7 @@ public class Sender extends Thread{
 
         //start to send all the data
         //to test error of time out
-        boolean timeOutError = true;
+        boolean timeOutError = false;
         while (true) {
 
             while (windowIndex <= windowMax && !allFrameSent) { //TODO doit verifier que window est plus grand que nombre de frame
@@ -104,13 +107,13 @@ public class Sender extends Thread{
                 //check if all frame are sent
                 if(windowIndex >= binFrameList.size()){
                     allFrameSent = true;
-                    break;
+                    // close connection frame
+                    frameToSend = fm.getFrameToSend(new Frame('F', 0));
+                } else {
+                    frameToSend = binFrameList.get(windowIndex);
                 }
 
-                //add number of the frame
-                String frameToSend = binFrameList.get(windowIndex);
-
-                //sent a frame
+                // send frame
                 try {
                     out.writeUTF(frameToSend);
                     out.flush();
@@ -118,30 +121,22 @@ public class Sender extends Thread{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                //update window index
+
+                if (allFrameSent) { // close communication
+                    System.out.println("SENDER Sender done");
+                    break;
+                }
+
+                // update window index
                 windowIndex++;
 
-                //test time out error
+                // test time out error
                 if(windowIndex == 10 && timeOutError) {
                     windowIndex++;
                     timeOutError = false;
                 }
             }
 
-            //close the communication
-            if(allFrameSent && !closeConnectionFrameSent) {
-                Frame frameCloseConnection = new Frame('F', 0);
-                try {
-                    out.writeUTF(fm.getFrameToSend(frameCloseConnection));
-                    out.flush();
-                    closeConnectionFrameSent = true;
-                    System.out.println("SENDER Sender done");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            //receive from the server
             try {
                 input = in.readUTF();
                 input = fm.frameExtract(input);

@@ -7,7 +7,7 @@ public class Main {
         Receiver receiver = new Receiver(5000);
         receiver.start();
 
-        Sender sender = new Sender("127.0.0.1", 5000, "src/test/text/test.txt");
+        Sender sender = new Sender("127.0.0.1", 5000, "src/test/text/test.txt", 0);
         sender.start();
 
     }
