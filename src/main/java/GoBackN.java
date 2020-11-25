@@ -48,13 +48,12 @@ public class GoBackN {
                         isChoiceValid = true;
                         break;
                     case "3":
-                        //TODO
                         Sender.BIT_FLIP = true;
                         isChoiceValid = true;
                         break;
                     case "4":
                         Sender.TimeOutError = true;
-                        //TODO
+                        Sender.BIT_FLIP = true;
                         isChoiceValid = true;
                         break;
                     default:
