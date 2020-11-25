@@ -30,7 +30,7 @@ public class Sender extends Thread{
     Frame frameInput;
     private String frameToSend;
 
-
+    public static boolean TimeOutError = false;
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
@@ -100,8 +100,6 @@ public class Sender extends Thread{
         setupConnection();  // establish connection
 
         //start to send all the data
-        //to test error of time out
-        boolean timeOutError = false;
         while (true) {
 
             while (windowIndex <= windowMax && !allFrameSent) { //TODO doit verifier que window est plus grand que nombre de frame
@@ -140,10 +138,10 @@ public class Sender extends Thread{
                 // update window index
                 windowIndex++;
 
-                // test time out error
-                if(windowIndex == 10 && timeOutError) {
+                //if transmission lost error is activated
+                if(windowIndex == 10 && TimeOutError) {
                     windowIndex++;
-                    timeOutError = false;
+                    TimeOutError= false; //will happen only one time
                 }
             }
 

@@ -57,7 +57,7 @@ public class FramesManager {
         switch (type) {
             case 'I': // information
                 //ack is the number of the frame + 1
-                return getFrameAck((frame_num+1) % Sender.WINDOW_SIZE);
+                return getFrameAck((frame_num + 1)%Sender.WINDOW_SIZE);
             case 'C': // Connection request
                 return getFrameConnectionConfirmation(frame_num);
             case 'F': // end of communication
