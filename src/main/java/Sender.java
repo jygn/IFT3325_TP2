@@ -17,7 +17,6 @@ public class Sender extends Thread{
     private FramesManager fm;
     private String fileName;
     private ArrayList<String> binFrameList;
-    private boolean BIT_FLIP = true;
     private Random random;
 
     int windowMin; // inferior limit of the window
@@ -31,6 +30,7 @@ public class Sender extends Thread{
     private String frameToSend;
 
     public static boolean TimeOutError = false;
+    public static boolean BIT_FLIP = false;
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
@@ -118,8 +118,6 @@ public class Sender extends Thread{
                     frameToSend = generateBitFlipError(frameToSend);
                     BIT_FLIP = false;
                 }
-
-
 
                 // send frame
                 try {

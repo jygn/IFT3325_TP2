@@ -49,6 +49,7 @@ public class GoBackN {
                         break;
                     case "3":
                         //TODO
+                        Sender.BIT_FLIP = true;
                         isChoiceValid = true;
                         break;
                     case "4":
