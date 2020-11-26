@@ -116,7 +116,7 @@ public class Sender extends Thread{
                     frameToSend = binFrameList.get(windowIndex);
                 }
 
-                if (BIT_FLIP & windowIndex==1) { // bit flip error simulation
+                if (BIT_FLIP & windowIndex==9) { // bit flip error simulation
                     int frame_num = fm.getFramesList().get(windowIndex).getNum();
                     frameToSend = generateBitFlipError(frameToSend, frame_num);
                     BIT_FLIP = false;
@@ -188,7 +188,7 @@ public class Sender extends Thread{
 
         switch (frameInput.getType()){
             case 'A':
-                System.out.println("SENDER ack : " + frameInput.getNum());
+//                System.out.println("SENDER ack : " + frameInput.getNum());
 
                 if (poll_req) { // poll request : retransmission des frames à partir du num
                     System.out.println("Retransmission des frames à partir du #" + frameInput.getNum());
