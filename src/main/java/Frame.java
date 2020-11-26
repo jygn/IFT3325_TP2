@@ -45,6 +45,7 @@ public class Frame {
             case 'C':
             case 'A':
             case 'R':
+            case 'P':
             case 'F':
                 this.type = type;
                 this.num = (byte) DataManipulation.binToInt(binFrame.substring(8, 16));

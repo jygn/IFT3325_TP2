@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class FramesManager {
 
     private static final int max_size = 100;
-    ArrayList<Frame> framesList;
+    private ArrayList<Frame> framesList;
     private ArrayList<String> binFrameList;
 
     public void createFramesList(byte[] data, int windowSize){
@@ -32,8 +32,10 @@ public class FramesManager {
     }
 
     public ArrayList<String> getBinFrameList() {
-        return binFrameList;
+        return this.binFrameList;
     }
+
+    public ArrayList<Frame> getFramesList() { return this.framesList; }
 
     public String getFrameToSend(Frame fm){
         return fm.getFlag() + fm.toBin() + fm.getFlag();
@@ -63,9 +65,8 @@ public class FramesManager {
             case 'F': // end of communication
                 System.out.println("RECEIVER confirm close connection");
                 return new Frame('F', 0);
-//            case 'P': //  P bit
-//                //TODO
-//                break;
+            case 'P':
+                return new Frame('P', frame_num);
             default:
                 return getREJ(frame_num);   // TODO changer??
         }

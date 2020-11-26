@@ -29,7 +29,7 @@ public class Sender extends Thread{
     Frame frameInput;
     private String frameToSend;
 
-    public static boolean TimeOutError = false;
+    public static boolean TimeOutError = true;
     public static boolean BIT_FLIP = false;
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
@@ -114,8 +114,9 @@ public class Sender extends Thread{
                     frameToSend = binFrameList.get(windowIndex);
                 }
 
-                if (BIT_FLIP & windowIndex==13) { // bit flip error simulation
-                    frameToSend = generateBitFlipError(frameToSend);
+                if (BIT_FLIP & windowIndex==1) { // bit flip error simulation
+                    int frame_num = fm.getFramesList().get(windowIndex).getNum();
+                    frameToSend = generateBitFlipError(frameToSend, frame_num);
                     BIT_FLIP = false;
                 }
 
@@ -136,11 +137,11 @@ public class Sender extends Thread{
                 // update window index
                 windowIndex++;
 
-                //if transmission lost error is activated
-                if(windowIndex == 10 && TimeOutError) {
-                    windowIndex++;
-                    TimeOutError= false; //will happen only one time
-                }
+                //if transmission lost error is activated   TODO..
+//                if(windowIndex == 10 && TimeOutError) {
+//                    windowIndex++;
+//                    TimeOutError= false; //will happen only one time
+//                }
             }
 
             try {
@@ -168,16 +169,24 @@ public class Sender extends Thread{
 
     }
 
-    public void handleTimeOut(){
-        windowIndex = windowMin;
+    public void handleTimeOut() {
+//        windowIndex = windowMin;
+        try {
+            frameToSend = fm.getFrameToSend(fm.getFrameByType((byte) 'P', 0));
+            System.out.println("SENDER Frame P bit sent");
+            out.writeUTF(frameToSend);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void handleResponse(Frame frameInput) {
 
-        System.out.println("SENDER ack : " + frameInput.getNum());
         switch (frameInput.getType()){
             case 'A':
-                //TODO
+                System.out.println("SENDER ack : " + frameInput.getNum());
                 //update the window
                 windowMin = newWindowMin(windowMin, frameInput.getNum()); //shift the limit inferior of the window (
                 System.out.println("SENDER windowMin: " + windowMin);
@@ -186,12 +195,11 @@ public class Sender extends Thread{
                 System.out.println("SENDER windowMax: " + windowMax);
                 break;
             case 'R':
-                windowIndex = windowMin;    // frames retransmission
+                windowIndex = windowMin;  // frames retransmission TODO : revoir gestion de window ici***
                 windowMax = windowMin + WINDOW_SIZE-1;
-                System.out.println("Retransmission des frames à partir du #" + windowIndex);
+                System.out.println("Retransmission des frames à partir du #" + frameInput.getNum());
                 break;
             case 'F':
-                //TODO
                 closeConfirmation = true;
                 System.out.println("SENDER confirmation from receiver to close the connection");
                 break;
@@ -200,9 +208,9 @@ public class Sender extends Thread{
         }
     }
 
-    public String generateBitFlipError(String binFrame) {
+    public String generateBitFlipError(String binFrame, int frame_num) {
         random = new Random();
-        System.out.println("GÉNÉRATION D'ERREUR (FLIPBIT) au frame #" + windowIndex);
+        System.out.println("GÉNÉRATION D'ERREUR (FLIPBIT) au frame #" + frame_num);
         int max_bit_index = binFrame.length()-(8 + 16); // w/o flag and CRC
         int ran_bit_index = random.nextInt(max_bit_index - 8) + 8;  // w/o flag
         return DataManipulation.bitFlip(binFrame, ran_bit_index);   // flip a random bit

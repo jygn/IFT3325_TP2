@@ -1,5 +1,7 @@
 import java.net.*;
 import java.io.*;
+import java.util.Timer;
+import java.util.concurrent.TimeoutException;
 
 public class Receiver extends Thread {
 
@@ -9,8 +11,8 @@ public class Receiver extends Thread {
     private int port;
     private DataOutputStream out = null;
     public static final int WINDOW_SIZE = 7;
-    private int frame_num;
-    private int framesReceive;
+    private int expected_frame;
+
 
     public Receiver(int port){
         this.port = port;
@@ -40,8 +42,8 @@ public class Receiver extends Thread {
         FramesManager fm = new FramesManager();
         Frame frameInput;
         Frame frameOutput = null;
-        frame_num = 0;
-        framesReceive=0;
+        expected_frame = 0;
+        boolean REJ_sent = false;
 
         try{
             String input = "";
@@ -51,28 +53,36 @@ public class Receiver extends Thread {
             while(true){
 
                 input = in.readUTF();
-//                System.out.println("RECEIVER frame receive: " + input);
                 input = fm.frameExtract(input);
                 frameInput = new Frame(input);
 
-                if (fm.containsError(input)) {          // TODO : vérifier si frameInput.getNum() == frame_num
-                    System.out.println("RECEIVER frame receive #" + framesReceive +  " contains error");
-                    frameOutput = fm.getREJ(frame_num);
-                } else if(frameInput.getNum() != frame_num && frameInput.getType() == 'I'){
-                        continue;
+                if (fm.containsError(input) | (REJ_sent && frameInput.getNum() != expected_frame)) {
+                    continue; // discard the frame
+                } else if(frameInput.getNum() != expected_frame && frameInput.getType() == 'I'){
+                    System.out.println("RECEIVER receive frame #" + frameInput.getNum() + " = out-of-order " +
+                            "-> Expected : frame # " + expected_frame);
+                    frameOutput = fm.getREJ(expected_frame); // send rej because frames out-of-order
+                    REJ_sent = true;
                 } else {
+
                     frameOutput = fm.getFrameByType(frameInput.getType(), frameInput.getNum());
+
                     if(frameInput.getType() == 'I') {
-//                        System.out.println("RECEIVER number receive : " + frameInput.getNum() + " VS num expected : " + frame_num);
-                        frame_num = (frame_num + 1) % WINDOW_SIZE;
-                        framesReceive++;
-                    }// numero du frame
+
+                        expected_frame = (expected_frame + 1) % WINDOW_SIZE;
+
+                        if (Sender.TimeOutError & expected_frame == 1) {    // TODO timeout error bonne facon de faire ou faire dans sender?
+                            Sender.TimeOutError = false;
+                            sleep(4000);
+                            continue;
+                        }
+                    }
+                    REJ_sent = false;
                 }
 
                 //send
                 out.writeUTF(fm.getFrameToSend(frameOutput));
                 out.flush();
-//                System.out.println("RECEIVER response sent");
 
                 if(frameOutput.getType() == 'F') break;
 
@@ -81,6 +91,8 @@ public class Receiver extends Thread {
             this.closeConnection();
 
         } catch (IOException e){
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
