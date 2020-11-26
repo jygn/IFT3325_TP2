@@ -30,8 +30,8 @@ public class Sender extends Thread{
     private String frameToSend;
     private boolean poll_req;
 
-    public static boolean TimeOutError = true;
-    public static boolean BIT_FLIP = false;
+    public static boolean TimeOutError = false;
+    public static boolean BIT_FLIP = true;
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
@@ -205,7 +205,7 @@ public class Sender extends Thread{
                 }
                 break;
             case 'R':
-                windowIndex = windowMin;  // frames retransmission TODO : revoir gestion de window ici***
+                windowIndex = newWindowIndex(windowIndex, frameInput.getNum());  // frames retransmission TODO : revoir gestion de window ici***
                 windowMax = windowMin + WINDOW_SIZE-1;
                 System.out.println("Retransmission des frames à partir du #" + frameInput.getNum());
                 break;
@@ -271,6 +271,12 @@ public class Sender extends Thread{
     }
 
 
+    /**
+     * Find the next windowin after sender received an aknoledgement
+     * @param windowMin
+     * @param ack
+     * @return
+     */
     public int newWindowMin (int windowMin, int ack) {
 
         int indexWindowMin = windowMin%WINDOW_SIZE;
@@ -282,4 +288,25 @@ public class Sender extends Thread{
 
         return windowMin;
     }
+
+    /**
+     * Find what is the index to returned to after a REJ.
+     * @param windowIndex
+     * @param rej
+     * @return
+     */
+    public int newWindowIndex (int windowIndex, int rej){
+
+        int index = (windowIndex%WINDOW_SIZE) - 1;
+        windowIndex--;
+
+        while (index != rej){
+            windowIndex--;
+            index = (index == 0 ? (WINDOW_SIZE-1) : index - 1)%WINDOW_SIZE;
+        }
+
+        return windowIndex;
+    }
+
+
 }
