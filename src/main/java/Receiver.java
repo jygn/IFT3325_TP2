@@ -67,16 +67,22 @@ public class Receiver extends Thread {
 
                     frameOutput = fm.getFrameByType(frameInput.getType(), frameInput.getNum());
 
-                    if(frameInput.getType() == 'I') {
+                    if (frameInput.getType() == 'I') {
 
                         expected_frame = (expected_frame + 1) % WINDOW_SIZE;
 
+
                         if (Sender.TimeOutError & expected_frame == 1) {    // TODO timeout error bonne facon de faire ou faire dans sender?
+                            Thread.sleep(4000);
                             Sender.TimeOutError = false;
-                            sleep(4000);
                             continue;
                         }
+
+                    } else if (frameInput.getType() == 'P') {
+                        frameOutput = fm.getFrameByType((byte) 'I', expected_frame);
+                        expected_frame = (expected_frame + 1) % WINDOW_SIZE;
                     }
+
                     REJ_sent = false;
                 }
 
@@ -90,9 +96,7 @@ public class Receiver extends Thread {
 
             this.closeConnection();
 
-        } catch (IOException e){
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e){
             e.printStackTrace();
         }
 

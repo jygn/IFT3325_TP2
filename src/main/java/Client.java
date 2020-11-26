@@ -6,41 +6,41 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
-public class Sender extends Thread{
+public class Client {
+    private static String address = "";
+    private static int port;
+    private static Socket socket = null;
+    private static int connectionType;
+    private static DataInputStream in = null;
+    private static DataOutputStream out = null;
+    private static FramesManager fm;
+    private static String fileName;
+    private static ArrayList<String> binFrameList;
+    private static Random random;
 
-    private String address = "";
-    private int port;
-    private Socket socket = null;
-    private int connectionType;
-    private DataInputStream in = null;
-    private DataOutputStream out = null;
-    private FramesManager fm;
-    private String fileName;
-    private ArrayList<String> binFrameList;
-    private Random random;
+    static int windowMin; // inferior limit of the window
+    static int windowMax; //upper limit of the window
+    static int windowIndex; // at where we are in the list
+    static boolean allFrameSent;
+    static boolean closeConfirmation;
+    static boolean closeConnectionFrameSent;
+    static String input, ack;
+    static Frame frameInput;
+    static String frameToSend;
 
-    int windowMin; // inferior limit of the window
-    int windowMax; //upper limit of the window
-    int windowIndex; // at where we are in the list
-    boolean allFrameSent;
-    boolean closeConfirmation;
-    boolean closeConnectionFrameSent;
-    String input, ack;
-    Frame frameInput;
-    private String frameToSend;
-    private boolean poll_req;
-
-    public static boolean TimeOutError = true;
+    public static boolean TimeOutError = false;
     public static boolean BIT_FLIP = false;
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
+    public static boolean poll_req = false;
+
 
     /**
      * Constructor
      * @param address address IP of the receiver
      * @param port port to communcate with the receiver
      */
-    public Sender(String address, int port, String fileName, int connectionType){
+    public Client(String address, int port, String fileName, int connectionType){
         this.address = address;
         this.port = port;
         this.fileName = fileName;
@@ -52,11 +52,10 @@ public class Sender extends Thread{
         allFrameSent = false;
         closeConfirmation = false;
         closeConnectionFrameSent = false;
-        poll_req = false;
 
     }
 
-    public void setupConnection() {
+    public static void setupConnection() {
 
         try {
             Frame connectionFrame = new Frame('C', connectionType);
@@ -72,7 +71,7 @@ public class Sender extends Thread{
             if(frameInput.getType() == 'A' && frameInput.getNum() == 0){
                 System.out.println("SENDER connection go-back-N established");
             } else if (frameInput.getType() == 'F'){
-                this.closeConnection();
+                closeConnection();
                 System.out.println("SENDER go-back-N connection NOT established");
                 System.exit(0);
             } else {
@@ -90,12 +89,16 @@ public class Sender extends Thread{
     /**
      * Main function of the Sender class, this function is called when the thread is started.
      */
-    public void run(){
+    public static void main(String[] args){
+        address = "127.0.0.1";
+        port = 5000;
+        fileName = "src/test/text/test.txt";
+        connectionType = 0;
         System.out.println("SENDER thread is running");
-        this.initSenderConnection();
+        initSenderConnection();
 
         //create frames
-        this.initFrames();
+        initFrames();
         System.out.println("SENDER frames ready to be sent");
         System.out.println("SENDER frame size: " + binFrameList.size());
 
@@ -163,7 +166,7 @@ public class Sender extends Thread{
 
             //close connection from server received
             if(closeConfirmation) {
-                this.closeConnection();
+                closeConnection();
                 break;
             }
 
@@ -171,9 +174,9 @@ public class Sender extends Thread{
 
     }
 
-    public void handleTimeOut() {
+    public static void handleTimeOut() {
         try {
-            System.out.println("SENDER sending poll request..");    // On a pas eu d'acquittement du receiver dans les délais on demande donc au receiver à quelle trame il est rendue?
+            System.out.println("SENDER sending poll request..");
             Frame f = fm.getFrameByType((byte) 'P', 0); // TODO changer num?
             frameToSend = f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag();
             out.writeUTF(frameToSend);
@@ -182,9 +185,10 @@ public class Sender extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
-    public void handleResponse(Frame frameInput) {
+    public static void handleResponse(Frame frameInput) {
 
         switch (frameInput.getType()){
             case 'A':
@@ -218,7 +222,7 @@ public class Sender extends Thread{
         }
     }
 
-    public String generateBitFlipError(String binFrame, int frame_num) {
+    public static String generateBitFlipError(String binFrame, int frame_num) {
         random = new Random();
         System.out.println("GÉNÉRATION D'ERREUR (FLIPBIT) au frame #" + frame_num);
         int max_bit_index = binFrame.length()-(8 + 16); // w/o flag and CRC
@@ -230,7 +234,7 @@ public class Sender extends Thread{
      * function that initiate a frame manager to transform all the data that we read into frames. This function also
      * convert the frame into binary and add the flags.
      */
-    public void initFrames(){
+    public static void initFrames(){
         byte[] data = new byte[0];
 
         try {
@@ -247,7 +251,7 @@ public class Sender extends Thread{
     /**
      * initialize the connection with the receiver
      */
-    public void initSenderConnection() {
+    public static void initSenderConnection() {
         try {
             socket = new Socket(address, port);
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
@@ -259,7 +263,7 @@ public class Sender extends Thread{
         System.out.println("SENDER socket Connected");
     }
 
-    public void closeConnection () {
+    public static void closeConnection () {
         try {
             out.close();
             socket.close();
@@ -271,7 +275,7 @@ public class Sender extends Thread{
     }
 
 
-    public int newWindowMin (int windowMin, int ack) {
+    public static int newWindowMin (int windowMin, int ack) {
 
         int indexWindowMin = windowMin%WINDOW_SIZE;
 
@@ -283,3 +287,4 @@ public class Sender extends Thread{
         return windowMin;
     }
 }
+
