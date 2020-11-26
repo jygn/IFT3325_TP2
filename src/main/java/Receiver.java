@@ -1,7 +1,5 @@
 import java.net.*;
 import java.io.*;
-import java.util.Timer;
-import java.util.concurrent.TimeoutException;
 
 public class Receiver extends Thread {
 
@@ -77,10 +75,12 @@ public class Receiver extends Thread {
                             Sender.TimeOutError = false;
                             continue;
                         }
+                        System.out.println("RECEIVER RR : " + expected_frame);
 
                     } else if (frameInput.getType() == 'P') {
                         frameOutput = fm.getFrameByType((byte) 'I', expected_frame);
                         expected_frame = (expected_frame + 1) % WINDOW_SIZE;
+                        System.out.println("RECEIVER RR : " + expected_frame);
                     }
 
                     REJ_sent = false;

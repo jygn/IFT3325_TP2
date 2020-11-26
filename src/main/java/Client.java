@@ -29,7 +29,7 @@ public class Client {
     static String frameToSend;
 
     public static boolean TimeOutError = false;
-    public static boolean BIT_FLIP = false;
+    public static boolean BIT_FLIP = true;
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
     public static boolean poll_req = false;

@@ -30,8 +30,8 @@ public class Sender extends Thread{
     private String frameToSend;
     private boolean poll_req;
 
-    public static boolean TimeOutError = true;
-    public static boolean BIT_FLIP = false;
+    public static boolean TimeOutError = false;
+    public static boolean BIT_FLIP = true;
     public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
@@ -116,7 +116,7 @@ public class Sender extends Thread{
                     frameToSend = binFrameList.get(windowIndex);
                 }
 
-                if (BIT_FLIP & windowIndex==1) { // bit flip error simulation
+                if (BIT_FLIP & windowIndex==9) { // bit flip error simulation
                     int frame_num = fm.getFramesList().get(windowIndex).getNum();
                     frameToSend = generateBitFlipError(frameToSend, frame_num);
                     BIT_FLIP = false;
@@ -188,7 +188,7 @@ public class Sender extends Thread{
 
         switch (frameInput.getType()){
             case 'A':
-                System.out.println("SENDER ack : " + frameInput.getNum());
+//                System.out.println("SENDER ack : " + frameInput.getNum());
 
                 if (poll_req) { // poll request : retransmission des frames à partir du num
                     System.out.println("Retransmission des frames à partir du #" + frameInput.getNum());
