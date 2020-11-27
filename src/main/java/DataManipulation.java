@@ -1,4 +1,5 @@
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class DataManipulation {
 
@@ -15,6 +16,14 @@ public class DataManipulation {
 
     public static String byteToString(byte bits){
         return new String(new byte[] {bits}, StandardCharsets.UTF_8);
+    }
+
+    public static String bytesToString(byte[] bytes) {
+        String text = "";
+        for (byte b : bytes) {
+            text += byteToString(b);
+        }
+        return text;
     }
 
     public static String bitsPadding (String bits) {
@@ -125,7 +134,7 @@ public class DataManipulation {
      * @param split_size : taille de chaque sous tableau
      * @return : tableau de tableau de bytes
      */
-    public static byte[][] splitBytes (byte[] data, int split_size) {
+    public static byte[][] splitBytes (byte[][] data, int split_size) {
 
         int n = (int) Math.ceil((double) data.length / split_size); // nb de chunk
 
@@ -149,10 +158,25 @@ public class DataManipulation {
         return data_chunks;
     }
 
+    public static byte[] trimBytes(byte[] data) {
+
+        int nozeros = 0;
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] != 0) nozeros++;
+        }
+        int i =0;
+        byte[] newData = new byte[nozeros];
+        for (int j = 0; j < data.length; j++) {
+            if (data[j] != 0) newData[i++] = data[j];
+        }
+        return newData;
+    }
+
     public static void main(String args[]){
 
-        byte test = 73;
+        byte test = 0;
         System.out.println(DataManipulation.byteToString(test));
+
     }
 
 

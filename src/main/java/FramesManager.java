@@ -10,24 +10,24 @@ public class FramesManager {
     private ArrayList<Frame> framesList;
     private ArrayList<String> binFrameList;
 
-    public void createFramesList(byte[] data, int windowSize){
+    public void createFramesList(byte[][] data, int windowSize){
         framesList = new ArrayList<>();
 
         byte type;
         int num;
-        // split les données en morceaux de bytes selon la taille maximale
-        byte[][] data_chunks = DataManipulation.splitBytes(data, max_size);
+        Frame f;
+        binFrameList = new ArrayList<>();
 
-        for (int i = 0; i < data_chunks.length; i++) {
+//         split les données en morceaux de bytes selon la taille maximale
+//        byte[][] data_chunks = DataManipulation.splitBytes(data, max_size);
+
+        for (int i = 0; i < data.length; i++) {
             type = 'I';
             num = i % windowSize;
-            framesList.add(new Frame(type, num, data_chunks[i]));
-            binFrameList = new ArrayList<>();
-
+            f = new Frame(type, num, data[i]);
+            framesList.add(f);
             // add flag and convert frames to binary
-            for (Frame f : framesList) {
-                binFrameList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
-            }
+            binFrameList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
         }
     }
 
@@ -63,7 +63,7 @@ public class FramesManager {
             case 'C': // Connection request
                 return getFrameConnectionConfirmation(frame_num);
             case 'F': // end of communication
-                System.out.println("RECEIVER confirm close connection");
+//                System.out.println("RECEIVER confirm close connection");
                 return new Frame('F', 0);
             case 'P':
                 return new Frame('P', frame_num);

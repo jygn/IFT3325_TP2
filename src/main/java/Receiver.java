@@ -10,6 +10,7 @@ public class Receiver extends Thread {
     private DataOutputStream out = null;
     public static final int WINDOW_SIZE = 7;
     private int expected_frame;
+    private GBNTester tester;
 
 
     public Receiver(int port){
@@ -19,14 +20,13 @@ public class Receiver extends Thread {
     public void initReceiverConnection(){
         try{
             server = new ServerSocket(port);
-            System.out.println("RECEIVER Server started");
-
             socket = server.accept();
-            System.out.println("RECEIVER Sender accepted");
-
             //receive
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+
+            tester = new GBNTester();
+            tester.setOutputFile("src/test/text/testOutput.txt");
 
         } catch (IOException i){
         System.out.println(i);
@@ -35,13 +35,13 @@ public class Receiver extends Thread {
     }
 
     public void run(){
-        System.out.println("RECEIVER thread is running");
         this.initReceiverConnection();
         FramesManager fm = new FramesManager();
         Frame frameInput;
         Frame frameOutput = null;
         expected_frame = 0;
         boolean REJ_sent = false;
+
 
         try{
             String input = "";
@@ -57,8 +57,9 @@ public class Receiver extends Thread {
                 if (fm.containsError(input) | (REJ_sent && frameInput.getNum() != expected_frame)) {
                     continue; // discard the frame
                 } else if(frameInput.getNum() != expected_frame && frameInput.getType() == 'I'){
-                    System.out.println("RECEIVER receive frame #" + frameInput.getNum() + " = out-of-order " +
-                            "-> Expected : frame # " + expected_frame);
+                    System.out.println("                                          " +
+                            "RECEIVER out of order! received frame #" + frameInput.getNum() +
+                            ", expected : frame #" + expected_frame);
                     frameOutput = fm.getREJ(expected_frame); // send rej because frames out-of-order
                     REJ_sent = true;
                 } else {
@@ -67,25 +68,29 @@ public class Receiver extends Thread {
 
                     if (frameInput.getType() == 'I') {
 
-                        expected_frame = (expected_frame + 1) % WINDOW_SIZE;
-
-
-                        if (Sender.TimeOutError & expected_frame == 1) {    // TODO timeout error bonne facon de faire ou faire dans sender?
+                        if (Sender.TimeOutError & expected_frame == 2) {    // TODO timeout error bonne facon de faire ou faire dans sender?
                             Thread.sleep(4000);
                             Sender.TimeOutError = false;
+
                             continue;
                         }
-                        System.out.println("RECEIVER RR : " + expected_frame);
+                        expected_frame = (expected_frame + 1) % WINDOW_SIZE;
+
+                        tester.writeDataFrame(frameInput.getData());
+
+//                        System.out.println("RECEIVER RR : " + expected_frame);
 
                     } else if (frameInput.getType() == 'P') {
                         frameOutput = fm.getFrameByType((byte) 'I', expected_frame);
                         expected_frame = (expected_frame + 1) % WINDOW_SIZE;
-                        System.out.println("RECEIVER RR : " + expected_frame);
+                        System.out.println("RECEIVER RR poll : " + expected_frame);
                     }
 
                     REJ_sent = false;
                 }
 
+                System.out.println("                                          " +
+                        "RECEIVER (" + (char) frameOutput.getType() + ", "+ frameOutput.getNum() + ")");
                 //send
                 out.writeUTF(fm.getFrameToSend(frameOutput));
                 out.flush();
@@ -108,6 +113,10 @@ public class Receiver extends Thread {
             out.close();
             socket.close();
             server.close();
+
+            tester.getWriter().close();
+            tester.checkReceiverOutput();
+
             System.out.println("RECEIVER Closing connection");
         } catch(IOException e) {
             e.printStackTrace();

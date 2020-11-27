@@ -7,8 +7,6 @@ public class Frame {
     private byte num;
     private byte[] data;
     private String CRC;
-    private String flag1;
-    private String flag2;
 
     public Frame(byte type, int num, byte[] data) {
 
@@ -30,7 +28,6 @@ public class Frame {
 
     public Frame(String binFrame) {
 
-        //TODO switch selon le type -> construit le frame selon son type
         byte type = DataManipulation.binToByte(binFrame.substring(0, 8));
 
         switch (type) {
@@ -40,6 +37,7 @@ public class Frame {
                 //data
                 String dataString = binFrame.substring(16, binFrame.length() - 16);
                 this.data = DataManipulation.binToBytes(dataString, dataString.length());
+                this.data = DataManipulation.trimBytes(this.data);  // trim les zeros inutiles
                 this.CRC = binFrame.substring(binFrame.length() - 16);
                 break;
             case 'C':
@@ -53,42 +51,18 @@ public class Frame {
                 break;
 
             default:
-//                System.out.println("FRAME error in frame");
+                System.out.println("FRAME error in frame");
         }
 
     }
-
 
     public byte getNum() {
         return num;
     }
 
-    public void setNum(byte num) {
-        this.num = num;
-    }
-
     public byte getType() { return type; }
 
-    private String getFrameTypeInString(byte bits){
-        return DataManipulation.byteToString(bits);
-    }
-
-    public void setType(byte type) {
-        this.type = type;
-    }
-
-    public String getTypeInString(){
-        return DataManipulation.byteToString(this.type);
-    }
-
-    public Frame(String flag1, byte type, int num, byte[] data, String CRC, String flag2) {
-        this.flag1 = flag1;
-        this.type = type;
-        this.num = (byte) num;
-        this.data = data;
-        this.CRC = CRC;
-        this.flag2 = flag2;
-    }
+    public byte[] getData() { return data; }
 
     /**
      * Représentation d'un frame sous format binaire
