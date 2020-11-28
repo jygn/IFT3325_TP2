@@ -55,7 +55,6 @@ public class Frame {
                 // data
                 String dataString = binFrame.substring(16, binFrame.length() - 16);
                 this.data = DataManipulation.binToBytes(dataString);
-//                this.data = DataManipulation.trimBytes(this.data);  // trim les zeros qui ont servis de padding
                 this.CRC = binFrame.substring(binSeq_size - 16);
                 break;
             case 'C':
