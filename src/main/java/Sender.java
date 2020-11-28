@@ -174,7 +174,6 @@ public class Sender extends Thread{
 
         switch (frameInput.getType()){
             case 'A':
-
                 if (poll_req) { // poll request : retransmission des frames à partir du num
                     System.out.println("Retransmission des frames à partir du #" + frameInput.getNum());
                     windowIndex=  newWindowIndex(windowIndex, frameInput.getNum());

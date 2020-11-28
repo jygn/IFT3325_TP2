@@ -1,8 +1,14 @@
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-
+/**
+ * Classe pour tout ce qui a trait la manipulation de données
+ * (e.g. conversion, stuffing, padding..)
+ */
 public class DataManipulation {
 
+    /**
+     * Transforme un tableau de bytes en une séquence de bits
+     * @param bts Tableau de bytes
+     * @return chaîne de caractères
+     */
     public static String bytesToBin(byte[] bts) {
 
         String bin = "";
@@ -14,18 +20,11 @@ public class DataManipulation {
         return bin;
     }
 
-    public static String byteToString(byte bits){
-        return new String(new byte[] {bits}, StandardCharsets.UTF_8);
-    }
-
-    public static String bytesToString(byte[] bytes) {
-        String text = "";
-        for (byte b : bytes) {
-            text += byteToString(b);
-        }
-        return text;
-    }
-
+    /**
+     * Ajoute le padding nécessaire pour avoir une séquence de 8 bits
+     * @param bits chaîne de caractères (séquence)
+     * @return chaîne de caractères (padding + séquence de bits)
+     */
     public static String bitsPadding (String bits) {
 
         while (bits.length() % 8 != 0) {
@@ -35,23 +34,20 @@ public class DataManipulation {
         return bits;
     }
 
-    public static String binToText (String bin) {
-        String text = "";
+    /**
+     * Transforme une séquence de bits en tableau de bytes
+     * @param bin chaîne de caractères (séquence de bits)
+     * @return tableau de bytes
+     */
+    public static byte[] binToBytes (String bin) {
 
+        int bytes_n = (int) Math.ceil((float)bin.length() / 8); // nombre de bytes dans la séquence
+        byte[] bytes =new byte[bytes_n];
+
+        int j =0;
         for (int i = 0; i < bin.length(); i+=8) {
-            text += (char) Integer.parseInt(bin.substring(i, i+8), 2);
+            bytes[j++] = Byte.parseByte(bin.substring(i, i+8), 2);
         }
-
-        return text;
-    }
-
-    public static byte[] binToBytes (String bin, int size) {
-        byte[] bytes =new byte[size];
-
-        for (int i = 0; i < bin.length(); i+=8) {
-            bytes[i] = (byte) Integer.parseInt(bin.substring(i, i+8), 2);
-        }
-
         return bytes;
     }
 
@@ -171,13 +167,5 @@ public class DataManipulation {
         }
         return newData;
     }
-
-    public static void main(String args[]){
-
-        byte test = 0;
-        System.out.println(DataManipulation.byteToString(test));
-
-    }
-
 
 }
