@@ -79,7 +79,7 @@ public class DataManipulation {
      * Bit stuffing : insère des bit '0' entre chaque séquence de 5 bits '1' consécutive, afin
      * de ne pas confordre les données avec les flags
      * @param data chaînes de caractères représentant la séquence de bits
-     * @return séquences de bits avec bourrage
+     * @return séquences de bits avec stuffing
      */
     public static String bitStuffing (String data) {
 
@@ -105,10 +105,10 @@ public class DataManipulation {
     }
 
     /**
-     * Débourrage d'une séquence de bits, c-à-d retire les bits '0'
-     * qui sont précédés d'une séquence de 5 bits '1' consécutive
+     * UnStuffing d'une séquence de bits : retire les bits '0' qui sont
+     * précédés d'une séquence de 5 bits '1' consécutive
      * @param data chaînes de caractères représentant la séquence de bits
-     * @return séquences de bits sans bourrage
+     * @return séquences de bits sans stuffing
      */
     public static String bitUnStuffing (String data) {
 
@@ -131,8 +131,19 @@ public class DataManipulation {
         return seq;
     }
 
+    /**
+     * Flip un bit d'une séquence de bits à un index donné
+     * @param bitSeq chaîne de caractères (séquence de bits)
+     * @param index entier
+     * @return séquence de bits avec 1 bit flippé (chaîne de caractères)
+     */
     public static String bitFlip (String bitSeq, int index) {
+
+        if (index >= bitSeq.length())
+            return bitSeq;
+
         char bit = bitSeq.charAt(index);
+
         if (bit == '0')
             bit = '1';
         else
@@ -140,10 +151,4 @@ public class DataManipulation {
 
         return bitSeq.substring(0, index) + bit + bitSeq.substring(index+1);
     }
-
-    public static byte stringTobyte (String data){
-        byte[] b = data.getBytes();
-        return b[0];
-    }
-
 }
