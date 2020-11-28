@@ -21,7 +21,7 @@ public class DataManipulationTest {
     }
 
     @Test
-    public void bitsPadding() {
+    public void bitsPaddingTest() {
         Assert.assertEquals("", DataManipulation.bitsPadding(""));
         Assert.assertEquals("00000000", DataManipulation.bitsPadding("0"));
         Assert.assertEquals("00000101", DataManipulation.bitsPadding("0101"));
@@ -31,9 +31,20 @@ public class DataManipulationTest {
     }
 
     @Test
-    public void binToBytes() {
-
+    public void bitStuffingTest() {
+        Assert.assertEquals("", DataManipulation.bitStuffing(""));
+        Assert.assertEquals("00000000", DataManipulation.bitStuffing("00000000"));
+        Assert.assertEquals("111110111", DataManipulation.bitStuffing("11111111"));
+        Assert.assertEquals("001111", DataManipulation.bitStuffing("001111"));
+        Assert.assertEquals("0011111000111110", DataManipulation.bitStuffing("00111110011111"));
     }
+
+    @Test
+    public void bitUnStuffingTest() {
+        // TODO..
+    }
+
+
 
 
 

@@ -5,7 +5,7 @@
 public class DataManipulation {
 
     /**
-     * Transforme un tableau de bytes en une séquence de bits
+     * Convertie un tableau de bytes en une séquence de bits
      * @param bts Tableau de bytes
      * @return chaîne de caractères
      */
@@ -35,7 +35,7 @@ public class DataManipulation {
     }
 
     /**
-     * Transforme une séquence de bits en tableau de bytes
+     * Convertie une séquence de bits en tableau de bytes
      * @param bin chaîne de caractères (séquence de bits)
      * @return tableau de bytes
      */
@@ -46,23 +46,41 @@ public class DataManipulation {
 
         int j =0;
         for (int i = 0; i < bin.length(); i+=8) {
-            bytes[j++] = Byte.parseByte(bin.substring(i, i+8), 2);
+            if ((i+8) <= bin.length()) {
+                bytes[j] = (byte) Integer.parseInt(bin.substring(i, i + 8), 2);
+            } else {
+                bytes[j] = (byte) Integer.parseInt(bin.substring(i, bin.length()));
+            }
+            j++;
         }
         return bytes;
     }
 
+    /**
+     * Concertie une séquence de 8 bits ou moins en un byte
+     * @param bin chaîne de caractères
+     * @return byte
+     */
     public static byte binToByte (String bin) {
         return (byte) Integer.parseInt(bin, 2);
     }
 
+
+    /**
+     * Convertie une séquence de bits en entier
+     * @param bin chaîne de caractères
+     * @return entier
+     */
     public static int binToInt (String bin) {
-        int num;
-
-        num = (int) Integer.parseInt(bin, 2);
-
-        return num;
+        return Integer.parseInt(bin, 2);
     }
 
+    /**
+     * Bit stuffing : insère des bit '0' entre chaque séquence de 5 bits '1' consécutive, afin
+     * de ne pas confordre les données avec les flags
+     * @param data chaînes de caractères représentant la séquence de bits
+     * @return séquences de bits avec bourrage
+     */
     public static String bitStuffing (String data) {
 
         String seq = "";
@@ -83,11 +101,15 @@ public class DataManipulation {
             }
 
         }
-
         return seq;
-
     }
 
+    /**
+     * Débourrage d'une séquence de bits, c-à-d retire les bits '0'
+     * qui sont précédés d'une séquence de 5 bits '1' consécutive
+     * @param data chaînes de caractères représentant la séquence de bits
+     * @return séquences de bits sans bourrage
+     */
     public static String bitUnStuffing (String data) {
 
         String seq = "";
@@ -122,50 +144,6 @@ public class DataManipulation {
     public static byte stringTobyte (String data){
         byte[] b = data.getBytes();
         return b[0];
-    }
-
-    /**
-     * Split un tableau de bytes en un tableau de tableau de bytes
-     * @param data : tableau de bytes
-     * @param split_size : taille de chaque sous tableau
-     * @return : tableau de tableau de bytes
-     */
-    public static byte[][] splitBytes (byte[][] data, int split_size) {
-
-        int n = (int) Math.ceil((double) data.length / split_size); // nb de chunk
-
-        byte[][] data_chunks = new byte[n][];
-        byte[] data_chunk;
-        int src_pos = 0;
-
-        for (int i = 0; i < n; i++) {
-            data_chunk = new byte[split_size];
-
-            if (data.length - (i * split_size) < split_size) {  // last chunk
-                data_chunk = new byte[data.length - (i * split_size)];
-                System.arraycopy(data, src_pos, data_chunk, 0, data.length - (i * split_size));
-            } else {
-                System.arraycopy(data, src_pos, data_chunk, 0, split_size);
-            }
-
-            data_chunks[i] = data_chunk;
-            src_pos += split_size;
-        }
-        return data_chunks;
-    }
-
-    public static byte[] trimBytes(byte[] data) {
-
-        int nozeros = 0;
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] != 0) nozeros++;
-        }
-        int i =0;
-        byte[] newData = new byte[nozeros];
-        for (int j = 0; j < data.length; j++) {
-            if (data[j] != 0) newData[i++] = data[j];
-        }
-        return newData;
     }
 
 }
