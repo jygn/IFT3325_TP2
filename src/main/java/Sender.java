@@ -29,7 +29,8 @@ public class Sender extends Thread{
 
     public static boolean TimeOutError = false;
     public static boolean BIT_FLIP = false;
-    public static final int WINDOW_SIZE = 7;    // (2^3) - 1 = 7
+    public static final int NUMBER_OF_FRAME = 8; // 2^3
+    public static final int WINDOW_SIZE = NUMBER_OF_FRAME - 1;// (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
     /**
@@ -54,6 +55,9 @@ public class Sender extends Thread{
 
     }
 
+    /**
+     * connection between the sender and the receiver, Sender send a request for a go-back-N connection.
+     */
     public void setupConnection() {
 
         try {
@@ -130,6 +134,12 @@ public class Sender extends Thread{
 
                 // update window index
                 windowIndex++;
+
+                //for frame lost error, it will skip a frame to simulate a lost frame.
+                if(TimeOutError && windowIndex == 10) {
+                    windowIndex = tester.simulateFrameLost(windowIndex);
+                    TimeOutError = false;
+                }
             }
 
             try {
@@ -160,7 +170,7 @@ public class Sender extends Thread{
     public void handleTimeOut() {
         try {
             System.out.println("SENDER sending poll request...");    // On a pas eu d'acquittement du receiver dans les délais on demande donc au receiver à quelle trame il est rendue?
-            Frame f = fm.getFrameByType((byte) 'P', 0); // TODO changer num?
+            Frame f = new Frame('P', 0);
             frameToSend = f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag();
             out.writeUTF(frameToSend);
             out.flush();
@@ -177,7 +187,8 @@ public class Sender extends Thread{
 
                 if (poll_req) { // poll request : retransmission des frames à partir du num
                     System.out.println("Retransmission des frames à partir du #" + frameInput.getNum());
-                    windowIndex=  newWindowIndex(windowIndex, frameInput.getNum());
+                    windowIndex=  nextWindowIndex(windowIndex, frameInput.getNum());
+                    windowMin = newWindowMin(windowMin, frameInput.getNum());
                     windowMax = windowMin + (WINDOW_SIZE - 1);
                     poll_req = false;
                 } else {
@@ -190,7 +201,7 @@ public class Sender extends Thread{
                 }
                 break;
             case 'R':
-                windowIndex = newWindowIndex(windowIndex, frameInput.getNum());  // frames retransmission
+                windowIndex = previousWindowIndex(windowIndex, frameInput.getNum());  // frames retransmission
                 windowMax = windowMin + WINDOW_SIZE-1;
                 System.out.println("SENDER Frames retransmission...");
                 break;
@@ -211,7 +222,7 @@ public class Sender extends Thread{
 
         byte[][] data = Utils.readLines(fileName);
         fm = new FramesManager();
-        fm.createFramesList(data, WINDOW_SIZE);
+        fm.createFramesList(data, NUMBER_OF_FRAME);
         binFrameList = fm.getBinFrameList();
 
     }
@@ -251,11 +262,11 @@ public class Sender extends Thread{
      */
     public int newWindowMin (int windowMin, int ack) {
 
-        int indexWindowMin = windowMin%WINDOW_SIZE;
+        int indexWindowMin = windowMin%NUMBER_OF_FRAME;
 
         while (indexWindowMin != ack){
             windowMin++;
-            indexWindowMin = (indexWindowMin + 1)%WINDOW_SIZE;
+            indexWindowMin = (indexWindowMin + 1)%NUMBER_OF_FRAME;
         }
 
         return windowMin;
@@ -267,14 +278,26 @@ public class Sender extends Thread{
      * @param rej
      * @return
      */
-    public int newWindowIndex (int windowIndex, int rej){
+    public int previousWindowIndex (int windowIndex, int rej){
 
-        int index = (windowIndex%WINDOW_SIZE) - 1;
+        int index = (windowIndex%NUMBER_OF_FRAME) - 1;
         windowIndex--;
 
         while (index != rej){
             windowIndex--;
-            index = (index == 0 ? (WINDOW_SIZE-1) : index - 1)%WINDOW_SIZE;
+            index = (index == 0 ? (NUMBER_OF_FRAME-1) : index - 1)%NUMBER_OF_FRAME;
+        }
+
+        return windowIndex;
+    }
+
+    private int nextWindowIndex(int windowIndex, int num) {
+
+        int index = (windowIndex%NUMBER_OF_FRAME);
+
+        while (index != num){
+            windowIndex--;
+            index = (index == 0 ? (NUMBER_OF_FRAME-1) : index)%NUMBER_OF_FRAME;
         }
 
         return windowIndex;

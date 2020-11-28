@@ -28,6 +28,13 @@ public class GBNTester {
         }
     }
 
+    public int simulateFrameLost(int windowIndex){
+            windowIndex++;
+            System.out.println("SENDER (I, 2, index 10 LOST)");
+
+        return windowIndex;
+    }
+
     public String generateBitFlipError(String binFrame, int frame_num) {
         Random random = new Random();
         System.out.println("GÉNÉRATION D'ERREUR (FLIPBIT) au frame #" + frame_num);

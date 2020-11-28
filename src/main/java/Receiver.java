@@ -8,9 +8,11 @@ public class Receiver extends Thread {
     private DataInputStream in = null;
     private int port;
     private DataOutputStream out = null;
-    public static final int WINDOW_SIZE = 7;
+    public static final int NUMBER_OF_FRAME = 8;
     private int expected_frame;
     private GBNTester tester;
+
+    public static boolean acknowledgementLost = false;
 
 
     public Receiver(int port){
@@ -45,7 +47,8 @@ public class Receiver extends Thread {
 
         try{
             String input = "";
-            int ack;
+            boolean executeOnceAckLost = true;
+            int ackignore = Sender.WINDOW_SIZE; // for the simulation of ack lost and timeout
 
             //read from sender
             while(true){
@@ -68,22 +71,34 @@ public class Receiver extends Thread {
 
                     if (frameInput.getType() == 'I') {
 
-                        if (Sender.TimeOutError & expected_frame == 2) {    // TODO timeout error bonne facon de faire ou faire dans sender?
-                            Thread.sleep(4000);
-                            Sender.TimeOutError = false;
+                        //Simulate aknolegement lost + time out error
+                        if (acknowledgementLost && ackignore >0) {
 
+                            if(executeOnceAckLost){
+                                System.out.println("                                          " +
+                                        "RECEIVER (A, " + frameInput.getNum() + ", LOST)");
+                                executeOnceAckLost = false;
+                            } else {
+                                System.out.println("                                          " +
+                                        "RECEIVER (A, " + frameInput.getNum() + ", NOT SEND)");
+                            }
+
+                            expected_frame = (expected_frame + 1) % NUMBER_OF_FRAME;
+                            ackignore--;
+                            tester.writeDataFrame(frameInput.getData());
                             continue;
                         }
-                        expected_frame = (expected_frame + 1) % WINDOW_SIZE;
+
+                        expected_frame = (expected_frame + 1) % NUMBER_OF_FRAME;
 
                         tester.writeDataFrame(frameInput.getData());
 
 //                        System.out.println("RECEIVER RR : " + expected_frame);
 
                     } else if (frameInput.getType() == 'P') {
-                        frameOutput = fm.getFrameByType((byte) 'I', expected_frame);
-                        expected_frame = (expected_frame + 1) % WINDOW_SIZE;
-                        System.out.println("RECEIVER RR poll : " + expected_frame);
+                        frameOutput = fm.getFrameByType(frameInput.getType(), expected_frame);
+                        System.out.println("                                          " +
+                                "RECEIVER RR poll : " + expected_frame);
                     }
 
                     REJ_sent = false;
@@ -101,7 +116,7 @@ public class Receiver extends Thread {
 
             this.closeConnection();
 
-        } catch (IOException | InterruptedException e){
+        } catch (IOException e){
             e.printStackTrace();
         }
 

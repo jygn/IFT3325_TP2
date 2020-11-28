@@ -29,16 +29,15 @@ public class GoBackN {
             String choice;
             System.out.println("Choose your scenario \n" +
                     "> 1. Normal communication (no error) \n" +
-                    "> 2. Transmission lost (time out) \n" +
-                    "> 3. Transmission error (bit flip) \n" +
-                    "> 4. Transmission lost and Transmission error ");
+                    "> 2. Transmission lost (REJ) \n" +
+                    "> 3. Transmission error (REJ) \n" +
+                    "> 4. Aknowledgement lost (TIME OUT)");
 
-            System.out.print("> ");
-
-            choice = scanner.nextLine();
             boolean isChoiceValid = false;
 
             while(!isChoiceValid) {
+                System.out.print("> ");
+                choice = scanner.nextLine();
                 switch (choice){
                     case "1":
                         isChoiceValid = true;
@@ -52,8 +51,7 @@ public class GoBackN {
                         isChoiceValid = true;
                         break;
                     case "4":
-                        Sender.TimeOutError = true;
-                        Sender.BIT_FLIP = true;
+                        Receiver.acknowledgementLost = true;
                         isChoiceValid = true;
                         break;
                     default:

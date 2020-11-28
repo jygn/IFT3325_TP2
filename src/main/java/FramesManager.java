@@ -10,7 +10,7 @@ public class FramesManager {
     private ArrayList<Frame> framesList;
     private ArrayList<String> binFrameList;
 
-    public void createFramesList(byte[][] data, int windowSize){
+    public void createFramesList(byte[][] data, int numberOfFrame){
         framesList = new ArrayList<>();
 
         byte type;
@@ -23,7 +23,7 @@ public class FramesManager {
 
         for (int i = 0; i < data.length; i++) {
             type = 'I';
-            num = i % windowSize;
+            num = i % numberOfFrame;
             f = new Frame(type, num, data[i]);
             framesList.add(f);
             // add flag and convert frames to binary
@@ -59,14 +59,14 @@ public class FramesManager {
         switch (type) {
             case 'I': // information
                 //ack is the number of the frame + 1
-                return getFrameAck((frame_num + 1)%Sender.WINDOW_SIZE);
+                return getFrameAck((frame_num + 1)%Sender.NUMBER_OF_FRAME);
             case 'C': // Connection request
                 return getFrameConnectionConfirmation(frame_num);
             case 'F': // end of communication
 //                System.out.println("RECEIVER confirm close connection");
                 return new Frame('F', 0);
             case 'P':
-                return new Frame('P', frame_num);
+                return getFrameAck(frame_num);
             default:
                 return getREJ(frame_num);   // TODO changer??
         }
