@@ -1,24 +1,54 @@
-import javax.xml.crypto.Data;
-
+/**
+ * Classe permettant de calculer le checksum d'une chaîne de bits
+ * à l'aide du polynôme générateur CRC-CCITT
+ */
 public class Checksum {
 
-    //CRC-CCITT (x^16 + x^12 + x^5 + 1)
+    // CRC-CCITT (x^16 + x^12 + x^5 + 1)
     private static final String POLYNOMIAL = "10001000000100001";
 
-    public static String calculCRC (String msg) { // msg : 1000 0000 0000 0000
-        String reminder = xor_div(msg + getPadding());
-        return bitsPadding16(reminder);  // reminder : 0001 1011 1001 1000
+    /**
+     * Calcul le checksum à l'aide du CRC
+     * @param data chaîne de caractères (bits)
+     * @return checksum (chaîne de caractères)
+     */
+    public static String calculCRC (String data) {
+        String reminder = xor_div(data + getPolyPadding(POLYNOMIAL));
+        return bitsPadding16(reminder);
     }
 
-    public static String getPadding () {
+    /**
+     * Donne le padding de '0' nécessaire pour le calcul du checksum
+     * selon un polynôme générateur
+     * @return padding de '0' (chaîne de caractères)
+     */
+    public static String getPolyPadding (String poly) {
         String padding = "";
-        int r = POLYNOMIAL.length();
+        int r = poly.length();
         for (int i = 0; i < r-1 ; i++) {
             padding += '0';
         }
         return padding;
     }
 
+    /**
+     * Vérifie si la séquence de bits reçue n'est pas erronée
+     * @param data séquence de bits (string)
+     * @return  boolean
+     */
+    public static boolean containsError(String data) {
+        boolean isWrong = false;
+        if (!Checksum.xor_div(data).equals("0")) {
+            isWrong = true;
+        }
+        return isWrong;
+    }
+
+    /**
+     * Calcul la division XOR d'une séquence de bits par un polynôme générateur
+     * @param data séquence de bits
+     * @return séquence de bits représentant le reste de la division
+     */
     public static String xor_div (String data) {
 
         int r = POLYNOMIAL.length();
@@ -26,6 +56,7 @@ public class Checksum {
             return data;
 
         data = data.substring(zeroSeqCounter(data));    // trim les 0's au début
+        if (data.equals("0")) return data;
         int i = 0;
         String reminder = "";
         int n_zeros = 0;
@@ -72,9 +103,9 @@ public class Checksum {
     }
 
     /**
-     * Compte la 1ère séquence de 0 de la sequence de bit
-     * @param binSeq : representation binaire en string
-     * @return : le nb de 0's de la 1ere sequence
+     * Compte la 1ère séquence de 0 de la sequence de bit avant d'atteindre le bit '1'
+     * @param binSeq : séquence de bits (chaîne de caractères)
+     * @return : le nb de 0's de la 1ere séquence
      */
     public static int zeroSeqCounter (String binSeq) {
         int i = 0;
@@ -83,6 +114,13 @@ public class Checksum {
         return i;
     }
 
+    /**
+     * Flip le bit désiré à un index précis d'une séquence de bits
+     * @param bitSeq séquence de bits (chaîne de caractères)
+     * @param index entier
+     * @param bit char
+     * @return séquence de bits avec le bit flippé
+     */
     public static String bitFlip (String bitSeq, int index, char bit) {
         return bitSeq.substring(0, index) + bit + bitSeq.substring(index+1);
     }
@@ -97,22 +135,7 @@ public class Checksum {
         while (bits.length()  != 16) {
             bits = '0' + bits;
         }
-
         return bits;
-    }
-
-    public static void main(String args[]){
-
-        Checksum chk = new Checksum();
-
-        byte[] data = {'a','l', 'l','o'};
-        String bin = "1000000000000000";
-//        String tosend = chk.calculCRC(bin);
-//        System.out.println(tosend);
-//
-//        System.out.println(chk.xor_div(tosend));
-
-
     }
 }
 

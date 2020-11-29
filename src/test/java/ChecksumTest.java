@@ -17,12 +17,22 @@ public class ChecksumTest {
 
     @Test
     public void containsErrorTest() {
-        Assert.assertFalse(fm.containsError(string_frame));
+        Assert.assertFalse(Checksum.containsError(string_frame));
+    }
+
+    @Test
+    public void calculCRCTest() {
+        Assert.assertEquals("", "");
+        Assert.assertEquals("0001101110011000", Checksum.calculCRC("1000000000000000"));
     }
 
     @Test
     public void xor_divTest() {
         Assert.assertEquals("0", Checksum.xor_div(string_frame));
+        Assert.assertEquals("1011101100100001", Checksum.xor_div("100000000010101010101001"));
+        Assert.assertEquals("0", Checksum.xor_div("0000000000000000000000"));
+        Assert.assertEquals("1", Checksum.xor_div("1"));
+        Assert.assertEquals("", Checksum.xor_div(""));
     }
 
 }
