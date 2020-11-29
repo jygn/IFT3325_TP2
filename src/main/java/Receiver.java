@@ -32,8 +32,7 @@ public class Receiver extends Thread {
 
         } catch (IOException i){
         System.out.println(i);
-    }
-
+        }
     }
 
     public void run(){
@@ -43,7 +42,6 @@ public class Receiver extends Thread {
         Frame frameOutput = null;
         expected_frame = 0;
         boolean REJ_sent = false;
-
 
         try{
             String input = "";
@@ -57,7 +55,7 @@ public class Receiver extends Thread {
                 input = fm.frameExtract(input);
                 frameInput = new Frame(input);
 
-                if (fm.containsError(input) | (REJ_sent && frameInput.getNum() != expected_frame)) {
+                if (fm.containsError(input) | (REJ_sent && (frameInput.getNum() != expected_frame))) {
                     continue; // discard the frame
                 } else if(frameInput.getNum() != expected_frame && frameInput.getType() == 'I'){
                     System.out.println("                                          " +
@@ -93,12 +91,9 @@ public class Receiver extends Thread {
 
                         tester.writeDataFrame(frameInput.getData());
 
-//                        System.out.println("RECEIVER RR : " + expected_frame);
 
                     } else if (frameInput.getType() == 'P') {
                         frameOutput = fm.getFrameByType(frameInput.getType(), expected_frame);
-                        System.out.println("                                          " +
-                                "RECEIVER RR poll : " + expected_frame);
                     }
 
                     REJ_sent = false;
@@ -106,6 +101,8 @@ public class Receiver extends Thread {
 
                 System.out.println("                                          " +
                         "RECEIVER (" + (char) frameOutput.getType() + ", "+ frameOutput.getNum() + ")");
+
+
                 //send
                 out.writeUTF(fm.getFrameToSend(frameOutput));
                 out.flush();

@@ -7,7 +7,7 @@ public class Checksum {
 
     public static String calculCRC (String msg) { // msg : 1000 0000 0000 0000
         String reminder = xor_div(msg + getPadding());
-        return DataManipulation.bitsPadding(reminder);  // reminder : 0001 1011 1001 1000
+        return bitsPadding16(reminder);  // reminder : 0001 1011 1001 1000
     }
 
     public static String getPadding () {
@@ -85,6 +85,20 @@ public class Checksum {
 
     public static String bitFlip (String bitSeq, int index, char bit) {
         return bitSeq.substring(0, index) + bit + bitSeq.substring(index+1);
+    }
+
+    /**
+     * Ajoute le padding nécessaire pour avoir une séquence de 16 bits
+     * @param bits chaîne de caractères (séquence)
+     * @return chaîne de caractères (padding + séquence de bits)
+     */
+    public static String bitsPadding16 (String bits) {
+
+        while (bits.length()  != 16) {
+            bits = '0' + bits;
+        }
+
+        return bits;
     }
 
     public static void main(String args[]){

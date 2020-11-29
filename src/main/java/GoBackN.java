@@ -43,11 +43,11 @@ public class GoBackN {
                         isChoiceValid = true;
                         break;
                     case "2":
-                        Sender.TimeOutError = true;
+                        Sender.frameLost_error = true;
                         isChoiceValid = true;
                         break;
                     case "3":
-                        Sender.BIT_FLIP = true;
+                        Sender.bitFlip_error = true;
                         isChoiceValid = true;
                         break;
                     case "4":

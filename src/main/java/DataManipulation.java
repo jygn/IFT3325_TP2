@@ -27,7 +27,7 @@ public class DataManipulation {
      */
     public static String bitsPadding (String bits) {
 
-        while (bits.length() % 8 != 0) {
+        while (bits.length() != 8) {
             bits = '0' + bits;
         }
 

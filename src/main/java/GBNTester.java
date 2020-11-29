@@ -29,19 +29,36 @@ public class GBNTester {
     }
 
     public int simulateFrameLost(int windowIndex){
-            windowIndex++;
-            System.out.println("SENDER (I, 2, index 10 LOST)");
+        System.out.println("SENDER (I, 2, index " + windowIndex+" LOST)");
+        windowIndex++;
 
         return windowIndex;
     }
 
-    public String generateBitFlipError(String binFrame, int frame_num) {
+    public String generateBitFlipError(Frame frame, int index) {
         Random random = new Random();
-        System.out.println("GÉNÉRATION D'ERREUR (FLIPBIT) au frame #" + frame_num);
-        int max_bit_index = binFrame.length()-(8 + 16); // w/o flag and CRC
+        System.out.println("SENDER (" + (char) frame.getType()+ ", "+
+                frame.getNum() +", BIT FLIP index " + index + ")");
+        String stringFrame = frame.toSendFormat();
+        int max_bit_index = stringFrame.length()-(8 + 16); // w/o flag and CRC
         int ran_bit_index = random.nextInt(max_bit_index - 8) + 8;  // w/o flag
-        return DataManipulation.bitFlip(binFrame, ran_bit_index);   // flip a random bit
+        return DataManipulation.bitFlip(stringFrame, ran_bit_index);   // flip a random bit
     }
+
+    public void createInputFile (String fileName, int frames_nb) {
+        try {
+            BufferedWriter b_writer = new BufferedWriter(new FileWriter(fileName));
+            for (int i = 1; i <= frames_nb; i++) {
+                b_writer.write("Frame data #" + i);
+                b_writer.newLine();
+            }
+
+            b_writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void checkReceiverOutput() throws IOException {
         if (Utils.filesEquals("src/test/text/test.txt", this.OutputFileName))

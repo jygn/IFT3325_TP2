@@ -18,16 +18,13 @@ public class FramesManager {
         Frame f;
         binFrameList = new ArrayList<>();
 
-//         split les données en morceaux de bytes selon la taille maximale
-//        byte[][] data_chunks = DataManipulation.splitBytes(data, max_size);
-
         for (int i = 0; i < data.length; i++) {
             type = 'I';
             num = i % numberOfFrame;
             f = new Frame(type, num, data[i]);
             framesList.add(f);
             // add flag and convert frames to binary
-            binFrameList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
+//            binFrameList.add(f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag());
         }
     }
 

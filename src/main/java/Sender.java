@@ -1,9 +1,12 @@
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Random;
 
-
+/**
+ * Classe représentant l'émetteur dans un protocole Go-Back-N.
+ * La connection entre l'émetteur et le destinataire se fait à l'aide de l'API socket de Java.
+ * Celle-ci permet une communication point-à-point entre ces 2 entités.
+ */
 public class Sender extends Thread{
 
     private String address = "";
@@ -12,9 +15,7 @@ public class Sender extends Thread{
     private int connectionType;
     private DataInputStream in = null;
     private DataOutputStream out = null;
-    private FramesManager fm;
     private String fileName;
-    private ArrayList<String> binFrameList;
 
     private int windowMin; // inferior limit of the window
     private int windowMax; //upper limit of the window
@@ -22,21 +23,29 @@ public class Sender extends Thread{
     private boolean allFrameSent;
     private boolean closeConfirmation;
     private String input;
-    private Frame frameInput;
-    private String frameToSend;
     private boolean poll_req;
     private GBNTester tester;
 
-    public static boolean TimeOutError = false;
-    public static boolean BIT_FLIP = false;
+    private FramesManager fm;
+    private ArrayList<Frame> framesList;
+    private Frame frameInput;
+    private Frame frameToSend;
+    private String frameWithError;
+
+    // Variables globales pour le simulation du scénario out-of-order (REJ)
+    public static boolean frameLost_error = false;
+    public static boolean bitFlip_error = false;
+
     public static final int NUMBER_OF_FRAME = 8; // 2^3
     public static final int WINDOW_SIZE = NUMBER_OF_FRAME - 1;// (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
 
     /**
-     * Constructor
-     * @param address address IP of the receiver
-     * @param port port to communcate with the receiver
+     * Constructeur de l'émetteur
+     * @param address adresse ip
+     * @param port  port pour la communication avec le destinataire
+     * @param fileName  nom du fichier utilisé pour l'envoi des frames
+     * @param connectionType type de connection 0 = Go-Back-N
      */
     public Sender(String address, int port, String fileName, int connectionType){
         this.address = address;
@@ -52,23 +61,21 @@ public class Sender extends Thread{
         poll_req = false;
 
         tester = new GBNTester();
-
+        tester.createInputFile(fileName, 15);
     }
 
     /**
-     * connection between the sender and the receiver, Sender send a request for a go-back-N connection.
+     * Établie la connexion entre l'émetteur et le destinataire.
+     * Le l'émetteur envoi une requête pour la demande de connexion.
      */
     public void setupConnection() {
 
-        try {
-            Frame connectionFrame = new Frame('C', connectionType);
-            out.writeUTF(fm.getFrameToSend(connectionFrame));
-            out.flush();
+        Frame connectionFrame = new Frame('C', connectionType);
+        send(connectionFrame.toSendFormat());
 
-            //wait for confirmation of the connection
-            input = in.readUTF();
-            input = fm.frameExtract(input);
-            frameInput = new Frame(input);
+        try {
+            // wait for confirmation of the connection
+            frameInput = readInput();
 
             if(frameInput.getType() == 'A' && frameInput.getNum() == 0){
                 System.out.println("SENDER connection go-back-N established");
@@ -81,71 +88,62 @@ public class Sender extends Thread{
                 System.exit(0);
             }
             //set up time out exception after 3 seconds
-            socket.setSoTimeout(TIME_OUT_INTERVAL*1000);
+            socket.setSoTimeout(TIME_OUT_INTERVAL * 1000);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     /**
-     * Main function of the Sender class, this function is called when the thread is started.
+     * Fonction principale de la classe sender, lorsque appelé le thread démarre.
+     * L'émetteur suit le protocole Go-Back-N à l'aide des fenêtres gissantes.
      */
     public void run(){
         this.initSenderConnection();
-
-        //create frames
-        this.initFrames();
+        this.initFrames();  // initialise frames list to send
         setupConnection();  // establish connection
 
-        //start to send all the data
+        // start to send all the data
         while (true) {
 
-            while (windowIndex <= windowMax && !allFrameSent) { //TODO doit verifier que window est plus grand que nombre de frame
+            while (windowIndex <= windowMax & !allFrameSent) {
 
-                //check if all frame are sent
-                if(windowIndex >= binFrameList.size()){
+                if (windowIndex >= framesList.size()) {    // check if all frame are sent
                     allFrameSent = true;
-                    // close connection frame
-                    frameToSend = fm.getFrameToSend(new Frame('F', 0));
-                } else if (BIT_FLIP & windowIndex==8) {
-                    int frame_num = fm.getFramesList().get(windowIndex).getNum();
-                    frameToSend = tester.generateBitFlipError(frameToSend, frame_num);
-                    BIT_FLIP = false;
+                    frameToSend = new Frame('F', 0);
+
+                } else if (bitFlip_error & windowIndex==8) { // out of order error due to a frame with errors
+
+                    frameWithError = tester.generateBitFlipError(framesList.get(windowIndex), windowIndex);
+                    send(frameWithError);
+                    windowIndex++;
+                    bitFlip_error = false;
+                    continue;
+
                 } else {
-                    frameToSend = binFrameList.get(windowIndex);
+                    frameToSend = framesList.get(windowIndex);
                 }
 
-                // send frame
-                try {
-                    if (windowIndex < binFrameList.size())
-                        System.out.println("SENDER (" + (char) fm.getFramesList().get(windowIndex).getType()+ ", "+
-                            fm.getFramesList().get(windowIndex).getNum() +", index " + (windowIndex) + ")");
-                    out.writeUTF(frameToSend);
-                    out.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                printInfos(frameToSend);
+                send(frameToSend.toSendFormat());
 
                 if (allFrameSent) { // close communication
-                    System.out.println("SENDER Sender done");
+                    System.out.println("SENDER All frames sent");
                     break;
                 }
 
                 // update window index
                 windowIndex++;
 
-                //for frame lost error, it will skip a frame to simulate a lost frame.
-                if(TimeOutError && windowIndex == 10) {
+                // simulation out of order error due to a frame lost
+                if(frameLost_error && windowIndex == 10) {
                     windowIndex = tester.simulateFrameLost(windowIndex);
-                    TimeOutError = false;
+                    frameLost_error = false;
                 }
             }
 
             try {
-                input = in.readUTF();
-                input = fm.frameExtract(input);
-                frameInput = new Frame(input);
+                frameInput = readInput();
 
                 // do an action according to the input
                 handleResponse(frameInput);
@@ -159,54 +157,81 @@ public class Sender extends Thread{
 
             //close connection from server received
             if(closeConfirmation) {
-                this.closeConnection();
+                closeConnection();
                 break;
             }
-
         }
-
     }
 
+    /**
+     * Envoi un poll request dû à une time out. On a pas reçu d'acquittement du destinataire dans les délais.
+     * On envoi donc un poll request pour demander à celui-ci une confirmation de la trame qu'il est rendu.
+     */
     public void handleTimeOut() {
+        System.out.println("SENDER sending poll request...");
+        frameToSend = new Frame('P', 0);
+        send(frameToSend.toSendFormat());
+        poll_req = true;
+    }
+
+    /**
+     * Envoi une trame au destinataire
+     * @param frame séquence de caractères
+     */
+    public void send(String frame) {
         try {
-            System.out.println("SENDER sending poll request...");    // On a pas eu d'acquittement du receiver dans les délais on demande donc au receiver à quelle trame il est rendue?
-            Frame f = new Frame('P', 0);
-            frameToSend = f.getFlag() + DataManipulation.bitStuffing(f.toBin()) + f.getFlag();
-            out.writeUTF(frameToSend);
+            out.writeUTF(frame);
             out.flush();
-            poll_req = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Lit le input du destinataire
+     * @return trame lue
+     * @throws IOException
+     */
+    public Frame readInput() throws IOException {
+        input = in.readUTF();
+        input = fm.frameExtract(input);
+        return new Frame(input);
+    }
+
+    /**
+     * Effectue une action spécifique prore au type de trame reçue du destinataire
+     * @param frameInput trame reçue
+     */
     public void handleResponse(Frame frameInput) {
 
         switch (frameInput.getType()){
             case 'A':
-                if (poll_req) { // poll request : retransmission des frames à partir du num
-                    System.out.println("Retransmission des frames à partir du #" + frameInput.getNum());
+                if (poll_req) { // poll request : retransmission des frames
                     windowIndex=  nextWindowIndex(windowIndex, frameInput.getNum());
                     windowMin = newWindowMin(windowMin, frameInput.getNum());
                     windowMax = windowMin + (WINDOW_SIZE - 1);
+                    System.out.println("SENDER Frames retransmission...");
                     poll_req = false;
+                    if (allFrameSent)
+                        allFrameSent = false;
                 } else {
                     //update the window
                     windowMin = newWindowMin(windowMin, frameInput.getNum()); //shift the limit inferior of the window (
-                    System.out.println("SENDER windowMin: " + windowMin);
+//                    System.out.println("SENDER windowMin: " + windowMin);
 
                     windowMax = windowMin + (WINDOW_SIZE - 1);
-                    System.out.println("SENDER windowMax: " + windowMax);
+//                    System.out.println("SENDER windowMax: " + windowMax);
                 }
                 break;
             case 'R':
                 windowIndex = previousWindowIndex(windowIndex, frameInput.getNum());  // frames retransmission
                 windowMax = windowMin + WINDOW_SIZE-1;
                 System.out.println("SENDER Frames retransmission...");
+                if (allFrameSent)
+                    allFrameSent = false;
                 break;
             case 'F':
                 closeConfirmation = true;
-//                System.out.println("SENDER confirmation from receiver to close the connection");
                 break;
             default:
                 System.out.println("SENDER frame contains error");
@@ -214,16 +239,13 @@ public class Sender extends Thread{
     }
 
     /**
-     * function that initiate a frame manager to transform all the data that we read into frames. This function also
-     * convert the frame into binary and add the flags.
+     * function that initiate a frame manager to transform all the data that we read into frames
      */
     public void initFrames(){
-
         byte[][] data = Utils.readLines(fileName);
         fm = new FramesManager();
         fm.createFramesList(data, NUMBER_OF_FRAME);
-        binFrameList = fm.getBinFrameList();
-
+        framesList = fm.getFramesList();
     }
 
     /**
@@ -238,9 +260,11 @@ public class Sender extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        System.out.println("SENDER socket Connected");
     }
 
+    /**
+     * Ferme la connexion entre de l'émetteur
+     */
     public void closeConnection () {
         try {
             out.close();
@@ -290,6 +314,12 @@ public class Sender extends Thread{
         return windowIndex;
     }
 
+    /**
+     * Find the next window index
+     * @param windowIndex
+     * @param num
+     * @return
+     */
     private int nextWindowIndex(int windowIndex, int num) {
 
         int index = (windowIndex%NUMBER_OF_FRAME);
@@ -300,6 +330,15 @@ public class Sender extends Thread{
         }
 
         return windowIndex;
+    }
+
+    /**
+     * Imprime les informations de l'envoi d'un trame
+     * @param frame trame
+     */
+    private void printInfos (Frame frame) {
+        System.out.println("SENDER (" + (char) frame.getType()+ ", "+
+                frame.getNum() +", index " + (windowIndex) + ")");
     }
 
 

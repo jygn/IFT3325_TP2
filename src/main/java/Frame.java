@@ -98,6 +98,12 @@ public class Frame {
     public String getFlag() { return flag; }
 
     /**
+     * Donne le checksum du trame
+     * @return chaîne de caractères
+     */
+    public String getCRC() { return this.CRC; }
+
+    /**
      * Représente un frame sous format binaire
      * @return chaîne de caracères
      */
@@ -109,6 +115,14 @@ public class Frame {
         String d = DataManipulation.bytesToBin(this.data);
 
         return t+n+d+this.CRC;
+    }
+
+    /**
+     * Donne le frame sous le bon format à envoyer incluant le bitStuffing de celui-ci
+     * @return chaîne de caractères
+     */
+    public String toSendFormat () {
+        return flag + DataManipulation.bitStuffing(this.toBin()) + flag;
     }
 
     /**
