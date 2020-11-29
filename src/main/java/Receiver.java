@@ -1,6 +1,11 @@
 import java.net.*;
 import java.io.*;
 
+/**
+ * Classe représentant le destinataire dans un protocole Go-Back-N.
+ * La connexion entre l'émetteur et le destinataire se fait à l'aide de l'API socket de Java.
+ * Celle-ci permet une communication point-à-point entre ces 2 entités.
+ */
 public class Receiver extends Thread {
 
     private Socket socket = null;
@@ -23,17 +28,25 @@ public class Receiver extends Thread {
     private boolean executeOnceAckLost = true;
     private int ackignore = Sender.WINDOW_SIZE; // for the simulation of ack lost and timeout
 
+    /**
+     * Constructeur du destinataire
+     * @param port numéro de port (entier)
+     */
     public Receiver(int port){
         this.port = port;
 
         fm = new FramesManager();
         expected_frame = 0;
         REJ_sent = false;
-        tester = new GBNTester();
-        tester.setOutputFile("src/test/text/testOutput.txt");
         input = "";
+
+        tester = new GBNTester();
+        tester.setOutputFile("out/FramesDataReceived.txt");
     }
 
+    /**
+     * Établie la connexion du serveur
+     */
     public void initReceiverConnection(){
         try{
             server = new ServerSocket(port);
@@ -45,6 +58,13 @@ public class Receiver extends Thread {
         }
     }
 
+    /**
+     * Fonction principale de la classe, lorsque appelé le thread démarre.
+     * Le destinataire suit le protocole Go-Back-N et répond à l'émétteur selon le type de trame reçu.
+     * Si une trame reçue contient un erreur, il l'ignore, comme s'il ne l'avait jamais reçue. Donc, si une trame
+     * contient une erreur ou est perdue durant la transmission, le destinataire enverra éventuellement un REJ, car
+     * les prochaines trames ne seront pas dans le bon ordre.
+     */
     public void run(){
         this.initReceiverConnection();
 
@@ -53,13 +73,12 @@ public class Receiver extends Thread {
             while(true){
 
                 input = in.readUTF();
-                input = fm.frameExtract(input);
-                frameInput = new Frame(input);
+                frameInput = fm.frameExtract(input);
 
                 int frameInNum = frameInput.getNum();
                 byte frameInType = frameInput.getType();
 
-                if (Checksum.containsError(input) | (REJ_sent & (frameInNum != expected_frame))) {
+                if (Checksum.containsError(frameInput) | (REJ_sent & (frameInNum != expected_frame))) {
                     continue; // discard the frame
 
                 } else if (frameInput.getNum() != expected_frame & frameInType == 'I') {
@@ -109,6 +128,10 @@ public class Receiver extends Thread {
         }
     }
 
+    /**
+     * Génère un erreur d'acquittement perdu de la part du destinataire. Lorsque la taille de la fenêtre
+     * de l'émetteur sera à sa capacité maximale, ceci génèrera un timeout.
+     */
     public void ackLostSimulation() {
         if(executeOnceAckLost){
             System.out.println("                                          " +
@@ -123,12 +146,18 @@ public class Receiver extends Thread {
         ackignore--;
     }
 
+    /**
+     * Affiche les informations du trame à envoyer par le destinataire
+     * @param frame trame à envoyer
+     */
     public void printInfos(Frame frame) {
         System.out.println("                                          " +
                 "RECEIVER (" + (char) frame.getType() + ", "+ frame.getNum() + ")");
     }
 
-
+    /**
+     * Ferme la connexion entre l'émetteur et le destinataire
+     */
     public void closeConnection() {
         try{
             in.close();

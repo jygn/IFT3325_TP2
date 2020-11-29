@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Classe représentant l'émetteur dans un protocole Go-Back-N.
- * La connection entre l'émetteur et le destinataire se fait à l'aide de l'API socket de Java.
+ * La connexion entre l'émetteur et le destinataire se fait à l'aide de l'API socket de Java.
  * Celle-ci permet une communication point-à-point entre ces 2 entités.
  */
 public class Sender extends Thread{
@@ -194,8 +194,7 @@ public class Sender extends Thread{
      */
     public Frame readInput() throws IOException {
         input = in.readUTF();
-        input = fm.frameExtract(input);
-        return new Frame(input);
+        return fm.frameExtract(input);
     }
 
     /**
@@ -242,7 +241,7 @@ public class Sender extends Thread{
      * function that initiate a frame manager to transform all the data that we read into frames
      */
     public void initFrames(){
-        byte[][] data = Utils.readLines(fileName);
+        byte[][] data = Utils.readLines("out/"+fileName);
         fm = new FramesManager();
         fm.createFramesList(data, NUMBER_OF_FRAME);
         framesList = fm.getFramesList();

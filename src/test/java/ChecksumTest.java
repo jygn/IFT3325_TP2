@@ -6,18 +6,18 @@ public class ChecksumTest {
 
     FramesManager fm;
     Frame frame;
-    String string_frame;
+    Frame frameToCheck;
+
     @Before
     public void init() {
         fm = new FramesManager();
         frame = new Frame((byte) 'I', 4, "Frame data #4".getBytes());
-        string_frame = frame.toSendFormat();
-        string_frame = fm.frameExtract(string_frame);
+        frameToCheck = fm.frameExtract(frame.toSendFormat());
     }
 
     @Test
     public void containsErrorTest() {
-        Assert.assertFalse(Checksum.containsError(string_frame));
+        Assert.assertFalse(Checksum.containsError(frameToCheck));
     }
 
     @Test
@@ -28,7 +28,7 @@ public class ChecksumTest {
 
     @Test
     public void xor_divTest() {
-        Assert.assertEquals("0", Checksum.xor_div(string_frame));
+        Assert.assertEquals("0", Checksum.xor_div(frameToCheck.toBin()));
         Assert.assertEquals("1011101100100001", Checksum.xor_div("100000000010101010101001"));
         Assert.assertEquals("0", Checksum.xor_div("0000000000000000000000"));
         Assert.assertEquals("1", Checksum.xor_div("1"));

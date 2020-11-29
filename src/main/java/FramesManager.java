@@ -1,10 +1,19 @@
 import java.util.ArrayList;
 
+/**
+ * Classe servant de manager pour les trames. Crée la liste des trames à envoyer,
+ * donne un trame selon son type, etc..
+ */
 public class FramesManager {
 
     private ArrayList<Frame> framesList;
 
-    public void createFramesList (byte[][] data, int numberOfFrame) {
+    /**
+     * Crée la liste des trames à envoyer par l'émetteur.
+     * @param data trames à envoyer sous forme de bytes
+     * @param frameNumMax taille maximale d'un numéro de trame (2^(nombre de bits))
+     */
+    public void createFramesList (byte[][] data, int frameNumMax) {
 
         framesList = new ArrayList<>();
         byte type;
@@ -12,14 +21,23 @@ public class FramesManager {
         Frame f;
         for (int i = 0; i < data.length; i++) {
             type = 'I';
-            num = i % numberOfFrame;
+            num = i % frameNumMax;
             f = new Frame(type, num, data[i]);
             framesList.add(f);
         }
     }
 
+    /**
+     * Donne la liste de trames à envoyer
+     * @return liste de trames
+     */
     public ArrayList<Frame> getFramesList() { return this.framesList; }
 
+    /**
+     * Donne la trame si la connexion s'est bien établie ou non
+     * @param frame_num numéro de la trame
+     * @return trame
+     */
     public Frame getFrameConnectionConfirmation(int frame_num) {
 
         // go-back-N request
@@ -33,6 +51,12 @@ public class FramesManager {
         }
     }
 
+    /**
+     * Donne la bonne trame selon son type.
+     * @param type type de la trame (byte)
+     * @param frame_num numéro de la trame (entier)
+     * @return trame
+     */
     public Frame getFrameByType (byte type, int frame_num) {
 
         switch (type) {
@@ -50,9 +74,15 @@ public class FramesManager {
         }
     }
 
-    public String frameExtract (String input) {
+    /**
+     * Extracte le trame du format d'envoi: enlève les flags et le bit stuffing
+     * @param input séquence de bits avec flags et bit stuffing
+     * @return trame 
+     */
+    public Frame frameExtract (String input) {
         input = input.substring(8, input.length() - 8);    // without flags
-        return DataManipulation.bitUnStuffing(input);    // remove bit stuffing
+        input = DataManipulation.bitUnStuffing(input);    // remove bit stuffing
+        return new Frame(input);
     }
 
 }

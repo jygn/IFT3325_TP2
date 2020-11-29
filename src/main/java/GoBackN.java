@@ -1,5 +1,9 @@
 import java.util.Scanner;
 
+/**
+ * Classe conetenant la fonction principale du programme.
+ * Elle donne un interface utilisateur pour la simulation du protocole Go-Back-N sans ou avec erreurs.
+ */
 public class GoBackN {
 
     private static Sender sender;
@@ -59,7 +63,7 @@ public class GoBackN {
                 }
             }
 
-            System.out.println("type commands");
+            System.out.println("type commands:");
 
             boolean isCommandsSenderDone = false;
             boolean isCommandReceiverDone = false;
@@ -77,7 +81,12 @@ public class GoBackN {
                             System.out.println("Error : Sender need 4 arguments");
                             break;
                         }
-                        sender = new Sender(command[1], Integer.parseInt(command[2]), command[3], Integer.parseInt(command[4]));
+                        try {
+                            sender = new Sender(command[1], Integer.parseInt(command[2]), command[3], Integer.parseInt(command[4]));
+                        } catch (NumberFormatException e) {
+                            System.out.println("Error occured");
+                            break;
+                        }
                         sender.start();
                         isCommandsSenderDone = true;
                         break;
@@ -86,7 +95,12 @@ public class GoBackN {
                             System.out.println("Error : Receiver need 1 arguments");
                             break;
                         }
-                        receiver = new Receiver(Integer.parseInt(command[1]));
+                        try {
+                            receiver = new Receiver(Integer.parseInt(command[1]));
+                        } catch (NumberFormatException e) {
+                            System.out.println("Error occured");
+                            break;
+                        }
                         receiver.start();
                         isCommandReceiverDone = true;
                         break;
@@ -103,6 +117,4 @@ public class GoBackN {
     }
 
 }
-
-// Sender 127.0.0.1 5000 src/test/text/test.txt 0
 

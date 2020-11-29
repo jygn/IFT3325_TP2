@@ -2,13 +2,46 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
+/**
+ * Classe de tests pour la protocole Go-Back-N.
+ * Cette classe permet d'effectuer des tests pendant la communication entre
+ * l'émetteur et le destinataire. Parmis ces tests, ils y a en a qui simulent des
+ * scénarios d'erreurs, comme la transmission d'un trame érronné, la perte d'un trame lors
+ * de la transmission, etc.
+ */
 public class GBNTester {
 
     private BufferedWriter writer;
-    private String OutputFileName;
+    private String fileOutputName;
+    private static String fileInputName;
 
+    /**
+     * Création du fichier de input.
+     * Chaque ligne de celui-ci représente les données d'un trame à envoyer au destinataire.
+     * @param fileName nom du fichier
+     * @param frames_nb nombre de trames à envoyer
+     */
+    public void createInputFile (String fileName, int frames_nb) {
+        fileInputName = "out/"+fileName;
+        try {
+            BufferedWriter b_writer = new BufferedWriter(new FileWriter(fileInputName));
+            for (int i = 1; i <= frames_nb; i++) {
+                b_writer.write("Frame data #" + i);
+                b_writer.newLine();
+            }
+
+            b_writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Crée un fichier de output pour vérifier les données des trames reçues.
+     * @param fileOutputName nom du fichier de output
+     */
     public void setOutputFile(String fileOutputName) {
-        OutputFileName = fileOutputName;
+        this.fileOutputName = fileOutputName;
         try {
             writer = new BufferedWriter(new FileWriter(fileOutputName));
         } catch (IOException e) {
@@ -16,6 +49,11 @@ public class GBNTester {
         }
     }
 
+    /**
+     * Convertie la ligne à écrire dans le fichier de string à bytes.
+     * Écrie cette ligne dans le fichier de output.
+     * @param data ligne à écrire
+     */
     public void writeDataFrame(byte[] data) {
         try {
             if (data != null) {
@@ -28,6 +66,11 @@ public class GBNTester {
         }
     }
 
+    /**
+     * Skip un trame dans la liste de trames pour la simulation du scénario où un trame est perdue.
+     * @param windowIndex index dans la liste de trames
+     * @return prochain index dans la lsite de trames
+     */
     public int simulateFrameLost(int windowIndex){
         System.out.println("SENDER (I, 2, index " + windowIndex+" LOST)");
         windowIndex++;
@@ -35,6 +78,13 @@ public class GBNTester {
         return windowIndex;
     }
 
+    /**
+     * Génère une erreur dans une trame soit en flippant un de ses bit en le choisissant
+     * aléatoirement. Ainsi, on pourra simuler la scénario où un trame est erronée.
+     * @param frame trame sans erreur
+     * @param index index dans la liste de trames
+     * @return trame avec erreur (en format binaire)
+     */
     public String generateBitFlipError(Frame frame, int index) {
         Random random = new Random();
         System.out.println("SENDER (" + (char) frame.getType()+ ", "+
@@ -45,28 +95,28 @@ public class GBNTester {
         return DataManipulation.bitFlip(stringFrame, ran_bit_index);   // flip a random bit
     }
 
-    public void createInputFile (String fileName, int frames_nb) {
-        try {
-            BufferedWriter b_writer = new BufferedWriter(new FileWriter(fileName));
-            for (int i = 1; i <= frames_nb; i++) {
-                b_writer.write("Frame data #" + i);
-                b_writer.newLine();
-            }
+    /**
+     * Compare si le fichier de input est identique au fichier de output.
+     * Si c'est le cas, le destinataire à bien reçu tous les données
+     * que l'émetteur avait à envoyer.
+     * @throws IOException
+     */
+    public void checkReceiverOutput() throws IOException {
 
-            b_writer.close();
-        } catch (IOException e) {
+        try {
+            if (Utils.filesEquals(fileInputName, this.fileOutputName))
+                System.out.println("Receiver received all frames");
+            else
+                System.out.println("Receiver did'nt receive all frames");
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
 
-
-    public void checkReceiverOutput() throws IOException {
-        if (Utils.filesEquals("src/test/text/test.txt", this.OutputFileName))
-            System.out.println("Receiver received all frames");
-        else
-            System.out.println("Receiver did'nt receive all frames");
-    }
-
+    /**
+     * Donne le l'écrivain du fichier de output.
+     * @return
+     */
     public BufferedWriter getWriter() { return this.writer; }
 
 }

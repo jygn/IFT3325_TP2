@@ -32,13 +32,14 @@ public class Checksum {
     }
 
     /**
-     * Vérifie si la séquence de bits reçue n'est pas erronée
-     * @param data séquence de bits (string)
+     * Vérifie si la trame reçue n'est pas erronée
+     * @param frame trame
      * @return  boolean
      */
-    public static boolean containsError(String data) {
+    public static boolean containsError(Frame frame) {
+        String frameString = frame.toBin();
         boolean isWrong = false;
-        if (!Checksum.xor_div(data).equals("0")) {
+        if (!Checksum.xor_div(frameString).equals("0")) {
             isWrong = true;
         }
         return isWrong;

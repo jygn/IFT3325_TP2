@@ -76,11 +76,10 @@ public class Utils {
         boolean areEqual = true;
 
         while (line1 != null || line2 != null) {
-            if(line1 == null || line2 == null) {
+            if (line1 == null || line2 == null) {
                 areEqual = false;
                 break;
-            }
-            else if(! line1.equalsIgnoreCase(line2)) {
+            } else if (!line1.equalsIgnoreCase(line2)) {
                 areEqual = false;
                 break;
             }
@@ -92,6 +91,7 @@ public class Utils {
         reader1.close();
         reader2.close();
         return areEqual;
+
     }
 
 }

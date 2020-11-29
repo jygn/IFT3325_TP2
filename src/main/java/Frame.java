@@ -92,18 +92,6 @@ public class Frame {
     public byte[] getData() { return data; }
 
     /**
-     * Donne le flag du trame
-     * @return chaîne de caractères
-     */
-    public String getFlag() { return flag; }
-
-    /**
-     * Donne le checksum du trame
-     * @return chaîne de caractères
-     */
-    public String getCRC() { return this.CRC; }
-
-    /**
      * Représente un frame sous format binaire
      * @return chaîne de caracères
      */
