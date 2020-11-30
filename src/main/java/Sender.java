@@ -62,8 +62,8 @@ public class Sender extends Thread{
         poll_req = false;
 
         tester = new GBNTester();
-        tester.createInputFile(fileName,30); //create a input file for tests
-//        GBNTester.setFileInputName(fileName);
+        // tester.createInputFile(fileName,30); //create a input file for tests
+        GBNTester.setFileInputName(fileName);
     }
 
     /**
@@ -243,7 +243,7 @@ public class Sender extends Thread{
      * function that initiate a frame manager to transform all the data that we read into frames
      */
     public void initFrames(){
-        byte[][] data = Utils.readLines(GBNTester.getFileInputName());
+        byte[][] data = Utils.readLines(fileName);
         fm = new FramesManager();
         fm.createFramesList(data, NUMBER_OF_FRAME);
         framesList = fm.getFramesList();
