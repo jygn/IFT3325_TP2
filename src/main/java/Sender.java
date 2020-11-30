@@ -39,7 +39,7 @@ public class Sender extends Thread{
     public static final int NUMBER_OF_FRAME = 8; // 2^3
     public static final int WINDOW_SIZE = NUMBER_OF_FRAME - 1;// (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
-    public static final String path = System.getProperty("user.dir");
+    public static final String path = new File("").getAbsolutePath();
 
     /**
      * Constructeur de l'émetteur
@@ -243,7 +243,8 @@ public class Sender extends Thread{
      * function that initiate a frame manager to transform all the data that we read into frames
      */
     public void initFrames(){
-        byte[][] data = Utils.readLines(fileName);
+        System.out.println(path + "/" + fileName);
+        byte[][] data = Utils.readLines(path + "/" + fileName);
         fm = new FramesManager();
         fm.createFramesList(data, NUMBER_OF_FRAME);
         framesList = fm.getFramesList();
