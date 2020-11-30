@@ -22,7 +22,7 @@ public class GBNTester {
      * @param frames_nb nombre de trames à envoyer
      */
     public void createInputFile (String fileName, int frames_nb) {
-        fileInputName = "out/"+fileName;
+        fileInputName = Sender.path + "/" + fileName;
         try {
             BufferedWriter b_writer = new BufferedWriter(new FileWriter(fileInputName));
             for (int i = 1; i <= frames_nb; i++) {
@@ -32,7 +32,7 @@ public class GBNTester {
 
             b_writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("GNBTester input file not found");
         }
     }
 
@@ -41,11 +41,11 @@ public class GBNTester {
      * @param fileOutputName nom du fichier de output
      */
     public void setOutputFile(String fileOutputName) {
-        this.fileOutputName = fileOutputName;
+        this.fileOutputName = Sender.path + "/out/" + fileOutputName;
         try {
-            writer = new BufferedWriter(new FileWriter(fileOutputName));
+            writer = new BufferedWriter(new FileWriter(this.fileOutputName));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("GBNTest output file not found");
         }
     }
 
@@ -101,15 +101,14 @@ public class GBNTester {
      * que l'émetteur avait à envoyer.
      * @throws IOException
      */
-    public void checkReceiverOutput() throws IOException {
+    public void checkReceiverOutput() {
 
         try {
             if (Utils.filesEquals(fileInputName, this.fileOutputName))
                 System.out.println("Receiver received all frames");
             else
                 System.out.println("Receiver did'nt receive all frames");
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
         }
     }
 
@@ -119,4 +118,7 @@ public class GBNTester {
      */
     public BufferedWriter getWriter() { return this.writer; }
 
+    public static void setFileInputName(String fileInputName) {
+        GBNTester.fileInputName = fileInputName;
+    }
 }

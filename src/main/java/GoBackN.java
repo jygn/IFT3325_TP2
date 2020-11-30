@@ -35,7 +35,8 @@ public class GoBackN {
                     "> 1. Normal communication (no error) \n" +
                     "> 2. Transmission lost (REJ) \n" +
                     "> 3. Transmission error (REJ) \n" +
-                    "> 4. Aknowledgement lost (TIME OUT)");
+                    "> 4. Aknowledgement lost (TIME OUT) \n" +
+                    "> 5. Exit");
 
             boolean isChoiceValid = false;
 
@@ -58,12 +59,15 @@ public class GoBackN {
                         Receiver.acknowledgementLost = true;
                         isChoiceValid = true;
                         break;
+                    case "5":
+                        System.exit(0);
+                        break;
                     default:
                         System.out.println("select a scenario between 1 and 4");
                 }
             }
 
-            System.out.println("type commands:");
+            System.out.println("type commands (q to exit program) :");
 
             boolean isCommandsSenderDone = false;
             boolean isCommandReceiverDone = false;
@@ -103,6 +107,9 @@ public class GoBackN {
                         }
                         receiver.start();
                         isCommandReceiverDone = true;
+                        break;
+                    case "q":
+                        System.exit(0);
                         break;
                     default :
                         System.out.println("Error: " + command[0] + " is not valid, please try again.");

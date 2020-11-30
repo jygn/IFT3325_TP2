@@ -39,6 +39,7 @@ public class Sender extends Thread{
     public static final int NUMBER_OF_FRAME = 8; // 2^3
     public static final int WINDOW_SIZE = NUMBER_OF_FRAME - 1;// (2^3) - 1 = 7
     public static final int TIME_OUT_INTERVAL = 3; // 3 seconds time out in go-back-N
+    public static final String path = System.getProperty("user.dir");
 
     /**
      * Constructeur de l'émetteur
@@ -61,7 +62,8 @@ public class Sender extends Thread{
         poll_req = false;
 
         tester = new GBNTester();
-        tester.createInputFile(fileName, 30);
+        tester.createInputFile(fileName,40); //creat a input file for tests
+//        GBNTester.setFileInputName(fileName);
     }
 
     /**
@@ -241,7 +243,7 @@ public class Sender extends Thread{
      * function that initiate a frame manager to transform all the data that we read into frames
      */
     public void initFrames(){
-        byte[][] data = Utils.readLines("out/"+fileName);
+        byte[][] data = Utils.readLines(path + '/' + fileName);
         fm = new FramesManager();
         fm.createFramesList(data, NUMBER_OF_FRAME);
         framesList = fm.getFramesList();
@@ -274,7 +276,6 @@ public class Sender extends Thread{
             e.printStackTrace();
         }
     }
-
 
     /**
      * Find the next windowin after sender received an aknoledgement

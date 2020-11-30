@@ -14,10 +14,11 @@ public class Utils {
      */
     public static byte[][] readLines(String filename) {
 
-        int n = fileLinesCount(filename);
-        byte[][] lines = new byte[n][];
+        byte[][] lines = new byte[0][];
 
         try {
+            int n = fileLinesCount(filename);
+            lines = new byte[n][];
 
             BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
             byte[] line_bytes;
@@ -32,7 +33,7 @@ public class Utils {
             bufferedReader.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("File not found try another file name.");
         }
 
         return lines;
@@ -44,17 +45,14 @@ public class Utils {
      * @param filename Nom du fichier
      * @return entier
      */
-    public static int fileLinesCount(String filename) {
+    public static int fileLinesCount (String filename) throws IOException {
 
         int lines_counter = 0;
 
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
-            while (bufferedReader.readLine() != null) lines_counter++;
-            bufferedReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
+        while (bufferedReader.readLine() != null) lines_counter++;
+        bufferedReader.close();
+
         return lines_counter;
     }
 

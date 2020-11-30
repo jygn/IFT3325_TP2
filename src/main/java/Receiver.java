@@ -41,7 +41,7 @@ public class Receiver extends Thread {
         input = "";
 
         tester = new GBNTester();
-        tester.setOutputFile("out/FramesDataReceived.txt");
+        tester.setOutputFile("FramesDataReceived.txt");
     }
 
     /**
