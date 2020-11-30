@@ -41,7 +41,11 @@ public class GBNTester {
      * @param fileOutputName nom du fichier de output
      */
     public void setOutputFile(String fileOutputName) {
-        this.fileOutputName = Sender.path + "/src/test/text/" + fileOutputName;
+
+        File dirPath = new File(Sender.path + "/out");
+        dirPath.mkdir();
+
+        this.fileOutputName = Sender.path + "/out/" + fileOutputName;
         try {
             writer = new BufferedWriter(new FileWriter(this.fileOutputName));
         } catch (IOException e) {
