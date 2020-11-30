@@ -131,4 +131,8 @@ public class GBNTester {
     public static void setFileInputName(String fileInputName) {
         GBNTester.fileInputName = fileInputName;
     }
+
+    public static String getFileInputName() {
+        return fileInputName;
+    }
 }
