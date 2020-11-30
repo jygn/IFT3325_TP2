@@ -243,7 +243,6 @@ public class Sender extends Thread{
      * function that initiate a frame manager to transform all the data that we read into frames
      */
     public void initFrames(){
-        System.out.println(path + "/" + fileName);
         byte[][] data = Utils.readLines(path + "/" + fileName);
         fm = new FramesManager();
         fm.createFramesList(data, NUMBER_OF_FRAME);
