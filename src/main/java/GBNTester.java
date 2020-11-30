@@ -105,9 +105,9 @@ public class GBNTester {
 
         try {
             if (Utils.filesEquals(fileInputName, this.fileOutputName))
-                System.out.println("Receiver received all frames");
+                System.out.println("GNBTester Receiver received all frames");
             else
-                System.out.println("Receiver did'nt receive all frames");
+                System.out.println("GNBTester Receiver did'nt receive all frames");
         } catch (IOException e) {
         }
     }
