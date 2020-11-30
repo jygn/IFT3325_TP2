@@ -22,7 +22,12 @@ public class GBNTester {
      * @param frames_nb nombre de trames à envoyer
      */
     public void createInputFile (String fileName, int frames_nb) {
-        fileInputName = Sender.path + "/" + fileName;
+
+        File dirPath = new File(Sender.path + "/out");
+        if (!dirPath.exists())
+            dirPath.mkdir();
+
+        fileInputName = Sender.path + "/out/" + fileName;
         try {
             BufferedWriter b_writer = new BufferedWriter(new FileWriter(fileInputName));
             for (int i = 1; i <= frames_nb; i++) {
@@ -43,7 +48,8 @@ public class GBNTester {
     public void setOutputFile(String fileOutputName) {
 
         File dirPath = new File(Sender.path + "/out");
-        dirPath.mkdir();
+        if (!dirPath.exists())
+            dirPath.mkdir();
 
         this.fileOutputName = Sender.path + "/out/" + fileOutputName;
         try {

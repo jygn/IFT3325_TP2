@@ -62,8 +62,8 @@ public class Sender extends Thread{
         poll_req = false;
 
         tester = new GBNTester();
-//        tester.createInputFile(fileName,40); //creat a input file for tests
-        GBNTester.setFileInputName(fileName);
+        tester.createInputFile(fileName,40); //create a input file for tests
+//        GBNTester.setFileInputName(fileName);
     }
 
     /**
