@@ -15,3 +15,11 @@ Ce TP consiste en l'implémentation simplifiée du protocole HDLC avec le protoc
 ## Go-Back-N
 
 - Protocole de fenêtre glissante permettant à l'émetteur de ne pas attendre pour un acquittement avant d'envoyer un autre frame lorsque la fenêtre n'est pas full.
+- Utilisé pour le flow de contrôle de frames entre l'émetteur et le récepteur.
+
+## Amélioration à apporter au TP
+
+- Pour la gestion de la fenêtre glissante de l'émetteur, utiliser un buffer plutôt que des variables 
+    - Puisque c'est une version simplifié, on a utilisé des variables min et max pour la gestion de fenêtre
+        - On a une liste prédéfinie avec tous les trames qu'on envoie (irréaliste)
+    - Il serait plus réaliste d'utiliser un queue de taille n représentant le buffer et d'enqueue et dequeue continuuellement.
